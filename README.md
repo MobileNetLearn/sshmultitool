@@ -17,7 +17,7 @@ Ein Multifunktionswerkzeug für SSH, mit Unterstützung für [Port knocking](htt
 * Texteditor (Konsole oder grafisch, frei nach Belieben)
 * Optional: OpenVPN, Unison
 
-## Unterstützte Systeme
+### Unterstützte Betriebssysteme
 * GNU/Linux (getestet auf Debian, Ubuntu und Arch)
 * Mac OS X (mit MacPorts)
 * Windows (mit Cygwin)
