@@ -22,7 +22,7 @@ SSH Multi Tool ist [freie Open Source Software](https://fsfe.org/about/basics/fr
 ## Voraussetzungen
 * Bash
 * OpenSSH sowie sshfs (optional, aber empfohlen)
-* knockd
+* knockd (bzw. den `knock`-Client, aber der ist in der Regel bei knockd dabei)
 * Texteditor (Konsole oder grafisch, frei nach Belieben)
 * Optional: OpenVPN, Unison
 
