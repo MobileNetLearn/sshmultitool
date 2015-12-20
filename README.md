@@ -1,6 +1,8 @@
 # SSH Multi Tool
 Ein Multifunktionswerkzeug für SSH, mit Unterstützung für [Port knocking](https://en.wikipedia.org/wiki/Port_knocking), [OpenVPN](https://en.wikipedia.org/wiki/OpenVPN) und [Unison](https://en.wikipedia.org/wiki/Unison_(file_synchronizer))!
 
+Dieses Programm ist in Bash geschrieben und besteht im Grunde genommen nur aus einer ausführbaren Datei sowie den Profildateien, die in ~/.sshmultitool gespeichert werden.
+
 ## Funktionen
 * Verbinden zu entfernten Rechnern via SSH
 * Dateiaustausch via SCP, SFTP und SSHFS
