@@ -26,8 +26,9 @@ Es muss nicht kompiliert, sondern lediglich in einen Ordner, der in `$PATH` steh
 * GNU/Linux (getestet auf Debian, Ubuntu und Arch)
 * Mac OS X (mit MacPorts)
 * Windows (mit Cygwin)
-* 
+
 <a name="installation"></a>
+
 ## Installation
 Einfach das Skript, `sshmultitool`, in einen Ordner packen, der in der `$PATH`-Variable liegt, z.B. `/usr/local/bin` oder `$HOME/bin` (bei Debian und Ubuntu standardmäßig via .profile in der $PATH-Variable).
 
