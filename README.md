@@ -28,6 +28,11 @@ Das Programm muss nicht kompiliert, sondern lediglich in einen Ordner, der in `$
 * Mac OS X (mit MacPorts)
 * Windows (mit Cygwin)
 
+## Changelog
+* 2015-12-20
+  * Projekt auf github verschoben
+  * Umbenannt in "SSH Multi Tool"
+
 ## Installation
 ### Automatisch
 ```
