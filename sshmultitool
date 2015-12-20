@@ -9,8 +9,6 @@
 # Authors: Michael Koch, Sebastian Lehne
 # Contact: m<DOT>koch<AT>emkay443<DOT>de
 # License: GNU General Public License v3 (http://www.gnu.de/documents/gpl-3.0.en.html)
-#
-# Changelog und Liste bekannter Fehler siehe Ende des Scripts
 
 
 #################
@@ -19,7 +17,7 @@
 
 # Name, Versionsnummer und Fenstertitel des Programms
 name="SSH Multitool"
-version="2015-12-20-2"
+version="2015-12-20_3"
 title="$name - Version $version"
 
 # Folgende Variablen nur überschreiben
@@ -550,7 +548,7 @@ function show_version_info {
 	exit 0
 }
 
-function checkForUpdates {
+function check_for_updates {
 	auto_update=true
 	if [[ ! "$(which dos2unix)" ]]; then
 		$command_dialog --title "DOS2UNIX" --yesno "DOS2UNIX ist nicht installiert.\nEs wird für die automatische Update-Funktion benötigt, ist aber dennoch optional.\n\nSoll es automatisch installiert werden?" 0 0
@@ -757,7 +755,7 @@ if [ -t 0 ]; then
 
 	if [[ $search_for_updates ]]; then
 		clear
-		checkForUpdates
+		check_for_updates
 	fi
 
 	# Konfigurations-Ordner erstellen, falls nicht schon existent
@@ -1241,180 +1239,3 @@ else
 fi
 
 exit 0
-
-########### Changelog ##########
-# Version: 2015-12-20	Michael Koch
-# * Projekt von Pastebin zu Github verschoben, Update-Funktion angepasst
-# * "homescripts", "homeconnect" und "home" in "sshmultitool" umbenannt
-# + Funktion eingebaut, die entsprechend die alten Verzeichnisse verschiebt
-#
-# Version: 2015-12-19_1	Michael Koch
-# * Code aufgeräumt. Erhebe keinen Anspruch auf Vollständigkeit.
-# P (planned) Umzug auf git{hub,lab,(.*)}
-#
-# Version: 2015-12-19	Michael Koch
-# + "Nur anklopfen" Funktion hinzugefügt, nur in der Kommandozeile (z.B. um ssh-copy-id oder andere Befehle zu benutzen, die nicht direkt unterstützt werden)
-#
-# Version: 2014-08-22	Michael Koch
-# * OpenVPN-Unterstützung verbessert, (hoffentlich) gefixt. Funktioniert jetzt in der GUI etwas besser (nicht-grafisch läuft immer noch über screen).
-# * #0001 ist nicht mehr "unfortunately unfixable"
-#
-# Version: 2014-07-16a	Michael Koch
-# + Unterstützung für SSH über OpenVPN: Optionen "ovpn_enable" (true/false) und "ovpn_optionfile" (String) in Konfigurationsdatei (noch experimentell!!)
-#
-# Version: 2013-10-23	Michael Koch
-# * Verwirrung um VNC-Ports behoben
-#
-# Version: 2013-09-16_1 Michael Koch
-# * Skript aufgeräumt, die Pfade zu den benutzten Programmen in Variablen ausgelegt
-#
-# Version: 2013-09-16	Sebastian Lehne
-# * Fixed usage of $knockd_sleep. Die Variable war scheinbar beim Einbau von knock quasi wirkungslos geworden, weil knock gleich alle Ports als Parameter bekommen hat.
-#
-# Version: 2013-09-14_1 Michael Koch
-# * Update-Funktion: Nutzer bekommt jetzt auch Leserechte (chmod +rx statt nur +x) auf die Datei
-#
-# Version: 2013-09-14	Michael Koch
-# + Möglichkeit hinzugefügt, nur die aktuellste Version herunterzuladen, ohne das eigentliche Skript zu überschreiben (Option -ud)
-# * Bugs in der Profilverwaltung via Kommandozeilenoptionen behoben
-# * Der Profilordner wird jetzt mit -p angelegt, die "Fehlermeldung" von mkdir könnte sonst verwirren
-# * Bugs #0005 und #0006 behoben
-#
-# Version: 2013-09-13_2 Michael Koch
-# * Einige Anzeige-Bugs (u.a. zu kleines Textfeld bei "Über dieses Programm") behoben
-#
-# Version: 2013-09-13_1	Sebastian Lehne
-# * Temp-File für Update-Funktion wird nun per mktemp angelegt.
-# * Pastebin-URL nun über Variablen zusammensteckbar.
-# * Pastebin-URL wird in Versions-Info mit angezeigt.
-# * Automatische Installation von dos2unix funktionierte nicht. Bug fixed.
-#
-# Version: 2013-09-13	Michael Koch
-# + Update-Funktionalität hinzugefügt. Mit Parameter -u bzw. --update aufrufen, um nach Updates zu suchen.
-#
-# Version: 2013-09-11	Sebastian Lehne, Michael Koch
-# * Bug mit SSH-Tunnel (endgültig) gefixt (hoffentlich?)
-#
-# Version: 2013-07-03	Sebastian Lehne
-# * Bug beim aufbauen eines SSH-Tunnels gefixt
-#
-# Version: 2013-06-06	Sebastian Lehne
-# * Tippfehler in knockknock beseitigt
-#
-# Version: 2013-06-01_2	Michael Koch
-# + Unterstützung für Microsoft Windows (via Cygwin) hinzugefügt
-#    Benötigt die Installation folgende Pakete in Cygwin:
-#    openssh, dialog, wget, nano/vi/vim, termcap, ncurses
-#
-# Version: 2013-06-01_1	Sebastian Lehen
-# * Bug #0004 gefixt, es lassen sich nun mehrere Dateien in einem Rutsch per SCP (im CLI) übertragen.
-#
-# Version: 2013-06-01	Sebastian Lehne
-# + globalen Array $param_array eingeführt, der alle Parameter mit passenden Leerzeichen enthält.
-# * Bug #0002 gefixt, es lassen sich nun beliebig viele Dateien auch an Profile senden. Außerdem kommt es nicht mehr zu Falschmeldungen über hoch zu ladende Dateien, wenn man das Programm mit einem Profil aufruft.
-#
-# Version: 2013-05-27_1	Sebastian Lehne
-# + Ist der Wartezeit-Parameter fürs Synchronisieren negativ, bleibt der Output von Unison so lange stehen, bis man eine Taste drückt.
-#
-# Version: 2013-05-27	Sebastian Lehne
-# * Auflisten der Profile mit Parameter "-p" ohne Angabe eines Profils funktioniert wieder
-# * Hardcoded Haupt-Profilnamen "homescripts" in einigen Funktionsaufrufen durch Variabel "$configfile_main_name" ersetzt.
-#
-# Version: 2013-05-26_1	Michael Koch
-# + Ein "Über dieses Programm" hinzugefügt
-# * Ein Paar Texte zum besseren Verständnis geändert
-# * Den Titel des "Auswahlmenü" zu "Hauptmenü" geändert
-#
-# Version: 2013-05-26	Michael Koch
-# * In dem SSH-Tunnel-Eintrag eine weitere Abfrage (if [ -s "$erg" ]; then) hinzugefügt
-# * Das "--no-cancel" aus der o.g. Funktion entfernt, kann nun also auch abgebrochen werden, wodurch "$erg" leer wäre, s.o.
-# * Die gesamte Profilverwaltung leer- und sonderzeichensicher gemacht (Profile mit '/', '\', '$' und ' ' im Namen können nicht erstellt werden)
-# * Manche Ja/Nein Dialoge, die mit "echo ... [J|n]" gemacht wurden, durch entsprechende Aufrufe von "dialog --yesno" ersetzt
-# * Name von "Heimverbindunsskript" zu "SSH Multitool" geändert. Klingt besser.
-#
-# Version: 2013-05-25	Sebastian Lehne
-# * Profil-Wechsel bei Angabe von Parameter "-p" in Funktion ausgelagert.
-# * Auflisten von Profilen bei Angabe von Parameter "-p" ohne Profilnamen in Funktion ausgelagert.
-# * Anlegen von Profil-Aliasen mit Parameter "-a" in Funktion ausgelagert.
-# * Profil kopieren mit Parameter "-c" in Funktion ausgelagert.
-# * Profil verschieben mit Parameter "-m" in Funktion ausgelagert.
-# * löschen von Profilen mit Parameter "-d" in Funktion ausgelagert.
-# * Profil zurücksetzten mit Parameter "-r" in Funktion ausgelagert.
-# * Anzeige von Versions-Info in Funktion ausgelagert.
-# * diverse Rückgabewerte angepasst.
-# * Beim kopieren von Dateien via SCP wird nun das aktuelle Verzeichniss statt /home/ aufgerufen. (fixes Bug #0003)
-#
-# Version: 2013-05-24_2	Michael Koch
-# * Weitere Rückgabewerte gefixt (Wusste nicht, dass die Zahl hinter "exit" ein Rückgabewert ist. Dachte, das wäre ein internes "sleep"...)
-# * Kleinere Bugfixes, Unschönheiten ausgemerzt
-#
-# Version: 2013-05-24_1	Sebastian Lehne
-# + Liste mit known Bugs angefügt
-# * Rückgabewert in Funktionen "dl_def_cfg" und "installPkg" im Fehlerfall auf 1 gesetzt (war 0, und 0 heißt "Alle OK", is aber n Fehler und eben nicht OK)
-# * Kommentar in Funktion "installPkg" angepasst. Aptitude gibts nicht nur für Debian, sondern auch für Ubuntu und Mint.
-# * URL für Download der Config-Datei in Variable ausgelagert
-# * Rückgabewert in Funktion "uploadFiles" von 2 auf 0 geändert. Wenn er da raus geht, hat ja schließlich alles geklappt.
-# * Redundante Befehle bei Profil-Überprüfung vereinfacht
-# * Rückgabewert bei Alias-Erzeugung, Delete und Reset mit nicht existenter Config-File von 0 auf 1 gesetzt
-#
-# Version: 2013-05-24	Michael Koch
-# + Erzeugen, kopierung und löschen von Profilen aus dem Hauptmenü heraus möglich
-# + Angabe des Zielordners in der SCP-Upload-Funktion des Hauptmenüs möglich
-# * Der SCP-Upload nutzt jetzt den Dateiwähler von dialog
-# * Fehlerbehandlung im SCP-Upload: Ordner statt Datei gewählt
-#
-# Version: 2013-05-23	Michael Koch
-# + Der SSH-Schlüsselgenerator kann vom Hauptmenü aufgerufen werden
-# + Profilwechsel ist jetzt auch aus dem Hauptmenü heraus möglich
-# + Zusätzlich zu -p und --profil kann nun auch --profile benutzt werden
-# + Profile können mit -p (--profil | --profile) ohne weitere Argumente aufgelistet werden
-# + Profile können mit -c (--copy) kopiert,
-# + ... mit -m (--move) verschoben (umbenannt)
-# + ... und mit -a (--alias) in ein neues Profil verlinkt werden
-# * Konfiguration des Skripts an den Anfang verschoben
-# * Fehler in Uplaod-Funktion behoben
-# * Fehler in Profilverwaltung behoben: Wollte Dateien hochladen, die nicht angegeben wurden
-# * Weitere Unschönheiten und Bugs behoben
-#
-# Version: 2013-05-22	Michael Koch
-# * Upload in eigene Funktion ausgelagert
-# + Upload-Funktion auf die Profile ausgeweitet (erstmal nur Einzeldateien möglich)
-#
-# Version: 2013-05-17	Sebastian Lehne
-# + Synchronisation über Unison ermöglicht
-#
-# Version: 2013-03-15_1	Michael Koch
-# * Erstellung der temporären Datei erst _nach_ Auflösen der Abhängigkeiten (ansonsten wäre Eintrag in Abhängigkeitsprüfung obsolet)
-#
-# Version: 2013-03-15	Sebastian Lehne
-# + Überprüfung auf installation von mktemp eingebaut. Müsste eigentlich überall vorhanden sein, da Teil der CoreUtils.
-# * Temp-Datei hat keinen festen Namen mehr, sondern wird über mktemp angelegt. Somit ignoriert sie nichtmehr die Systemvorgabe.
-#
-# Version: 2013-01-23	Michael Koch
-# + Unterstützung für verschiede Linux-Distributionen und sogar Mac OS X (über Macports)
-# + Überprüfung und Installation der Abhängigkeiten (u.a. dialog, wget, openssh, sshfs, vi)
-# + Überprüfung, ob das Programm im Terminal ausgeführt wird (und ggbf. im Terminal starten)
-#
-# Version: 2013-01-02	Michael Koch
-# + Unterstützung für Profile
-# + Kommandozeilenoptionen für Profilmanagement hinzugefügt
-#
-# Version: 2012-12-21	Sebastian Lehne
-# + Portliste für SSH-Tunnel um Ports für SSH und SMTP ergänzt
-# - Verzeichniswechsel zu Beginn des Scripts entfernt
-# * Speichern der heruntergeladenen Config-File mit vorbestimmtem Namen (bisher einfach in aktuellem Verzeichnis)
-# * Adresse des Configfiles beim editieren von selbigem nun aus Variable ausgelesen (bisher Hardcoded)
-# * Senden von Files mittels scp funktioniert nun sowohl mit absoluten als auch relativen Pfadangaben
-# * Portknocking in Funktion "knockknock" ausgelagert (nur "knock" wird als Befehl interpretiert)
-
-########## Known Bugs ##########
-# - #0001 Microsoft has a majority market share (confirmed, critical)
-# X #0002 Wurde ein Profil über den parameter -p angegeben, lässt sich nur eine Datei per scp übertragen. (confirmed, uncritical, fixed)
-# X #0003 Das Kopieren von Dateien über den SCP-Eintrag im Menü funktioniert nicht, da die Auswahl auf /home/ verweist, worin sich in der Regel nur Ordner befinden, die aber nach Aussage des Scripts nicht kopiert werden können. Betreten kann man diese auch nicht. Lösungsvorschlag: Warum auf /home/ verweisen? Das aktuelle Verzeichnis wäre doch sinnvoller. (fixed)
-# X #0004 Schickt man mehrere Dateien an ein und das selbe Ziel, muss man für jede Datei das SSH-Passwort, bzw das PW für den RSA-Key eingeben. (fixed)
-# X #0005 Leerzeichen im Pfad der Config-Datei führen zu einem nicht einlesen der Config-Datei.
-# X #0006 Anlegen von Verzeichnissen als SFTP-Mountpoint außerhalb des Home-Verzeichnisses wird hardcoded mit "sudo" gemacht. (fixed)
-# - #0007 Die Versionskontrolle kontrolliert nur, ob die Version bei Pastebin eine andere ist, nicht ob es auch eine neuere ist. Man bekommt also auch ein "Downgrade" als Update angeboten.
-# - #0008 Das Installieren von noch fehlenden Paketen funktioniert nur wirklich zuverlässig mit Ubuntu und Debian; andere Paketnamen bei anderen Distros werden nicht berücksichtigt, daher ist u.U. manuelles Installieren von Abhängigkeiten nötig.
-#
-################################
