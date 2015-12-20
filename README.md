@@ -25,15 +25,24 @@ SSH Multi Tool ist [freie Open Source Software](https://fsfe.org/about/basics/fr
 * knockd (bzw. den `knock`-Client, aber der ist in der Regel bei knockd dabei)
 * dialog
 * wget
+* make (für die Installation)
 * Texteditor (Konsole oder grafisch, frei nach Belieben)
 * Optional: OpenVPN, Unison
 
 ### Installation der Abhängigkeiten
 #### Ubuntu/Debian/Mint
-`sudo apt-get install bash openssh-client sshfs knockd dialog wget vim nano`
+`sudo apt-get install bash openssh-client sshfs knockd dialog wget vim nano make`
 
 #### Arch
-`sudo pacman -S bash openssh sshfs knockd dialog wget vim nano`
+`sudo pacman -S bash openssh sshfs knockd dialog wget vim nano make`
+
+#### Cygwin (mit [apt-cyg](https://github.com/transcode-open/apt-cyg))
+```
+apt-cyg install bash openssh dialog wget vim nano unzip
+wget http://www.zeroflux.org/proj/knock/files/knock-cygwin.zip
+unzip knock-cygwin.zip
+mv knock_client/windows-cmd/knock.exe /bin/knock.exe
+```
 
 
 ### Unterstützte Betriebssysteme
