@@ -41,4 +41,4 @@ Zudem darf dieses Programm nicht in einem Paket mit proprietärer Software verte
 
 Zusätzlich wäre es wünschenswert, wenn Sie stets die originalen Autoren dieses Programms erwähnen bzw. die Nennungen im Code des Skripts beibehalten.
 
-Eine Verwendung für militärische oder sonstige Zwecke, die die freiheitliche Grundordnung oder Menschenleben, mit welcher Begründung auch immer, bedrohen, lehne ich strikt ab.
+Eine Verwendung für militärische oder sonstige Zwecke, die die freiheitliche Grundordnung oder Menschenleben, mit welcher Begründung auch immer, bedrohen, lehne ich persönlich strikt ab, verbieten kann ich es Ihnen aber nicht.
