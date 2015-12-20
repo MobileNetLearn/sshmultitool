@@ -11,7 +11,6 @@ endif
 	mkdir -p $(DESTDIR)
 	cp sshmultitool $(DESTDIR)
 	chmod +x $(DESTDIR)/sshmultitool
-	make bashcompletion
 
 bashcompletion:
 	sudo mkdir -p /etc/bash_completion.d
