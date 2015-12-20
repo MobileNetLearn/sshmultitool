@@ -22,6 +22,3 @@ Ein Multifunktionswerkzeug für SSH, mit Unterstützung für [Port knocking](htt
 * Mac OS X (mit MacPorts)
 * Windows (mit Cygwin)
 
-*Die Funktion, automatisch die benötigten Pakete mit einem Paketmanager (apt-get, yum, ...)  zu installieren, kann auf manchen Systemen nicht oder nur fehlerhaft funktionieren.    
-Eventuell wird dieses sowieso kaum benutzte Feature bald entfernt*
-
