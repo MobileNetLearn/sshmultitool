@@ -3,7 +3,7 @@ Ein Multifunktionswerkzeug für SSH, mit Unterstützung für [Port knocking](htt
 
 Dieses Programm ist in Bash geschrieben und besteht im Grunde genommen nur aus einer ausführbaren Datei sowie den Profildateien, die in `~/.sshmultitool` gespeichert werden.
 
-Es muss nicht kompiliert, sondern lediglich in einen Ordner, der in `$PATH` steht (z.B. `/usr/local/bin` oder `$HOME/bin`), kopiert werden. Dafür kann auch das `Makefile` (siehe **Installation**) verwendet werden.
+Es muss nicht kompiliert, sondern lediglich in einen Ordner, der in `$PATH` steht (z.B. `/usr/local/bin` oder `$HOME/bin`), kopiert werden. Dafür kann auch das `Makefile` (siehe [Installation](#installation)) verwendet werden.
 
 ## Funktionen
 * Verbinden zu entfernten Rechnern via SSH
@@ -26,7 +26,8 @@ Es muss nicht kompiliert, sondern lediglich in einen Ordner, der in `$PATH` steh
 * GNU/Linux (getestet auf Debian, Ubuntu und Arch)
 * Mac OS X (mit MacPorts)
 * Windows (mit Cygwin)
-
+* 
+<a name="installation"></a>
 ## Installation
 Einfach das Skript, `sshmultitool`, in einen Ordner packen, der in der `$PATH`-Variable liegt, z.B. `/usr/local/bin` oder `$HOME/bin` (bei Debian und Ubuntu standardmäßig via .profile in der $PATH-Variable).
 
