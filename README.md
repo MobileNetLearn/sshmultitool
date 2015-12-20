@@ -28,11 +28,18 @@ Das Programm muss nicht kompiliert, sondern lediglich in einen Ordner, der in `$
 * Mac OS X (mit MacPorts)
 * Windows (mit Cygwin)
 
-## Installation
-Einfach das Skript, `sshmultitool`, in einen Ordner packen, der in der `$PATH`-Variable liegt, z.B. `/usr/local/bin` oder `$HOME/bin` (bei Debian und Ubuntu standardmäßig via `$HOME/.profile` in der `$PATH`-Variable).
+## Download
 
-Stattdessen kann auch das `Makefile` verwendet werden.    
-Dafür im Quellordner `make` ausführen. Dann wird, sofern nicht schon vorhanden, der Ordner `$HOME/bin` angelegt, das Skript dorthin kopiert, die Autovervollständigung in Bash eingerichtet sowie die Musterkonfiguration in `$HOME/.sshmultitool/sshmultitool.cfg.template` abgelegt.
+## Installation
+### Automatisch
+...
+git clone https://github.com/emkay443/sshmultitool.git
+cd sshmultitool
+make
+...
+
+### Manuell
+`sshmultitool` [herunterladen](https://raw.githubusercontent.com/emkay443/sshmultitool/master/sshmultitool), ausführbar machen (`chmod +x sshmultitool`) und in einen Ordner legen, der in der `$PATH`-Variable liegt, z.B. `/usr/local/bin` oder `$HOME/bin` (bei Debian und Ubuntu standardmäßig via `$HOME/.profile` in der `$PATH`-Variable).
 
 ## Lizenz
 SSH Multi Tool steht unter der [GNU General Public Licsense Version 3](https://www.gnu.org/licenses/gpl-3.0.de.html) und ist somit [freie Software](https://fsfe.org/about/basics/freesoftware.de.html).    
