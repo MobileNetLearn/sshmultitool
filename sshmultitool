@@ -1228,7 +1228,7 @@ if [ -t 0 ]; then
 				synchronise
 				;;
 			"?")
-				show_version_info | $command_dialog --progressbox "Über dieses Programm (Zurück: Beliebige Taste drücken)" 13 80
+				show_version_info | $command_dialog --progressbox "Über dieses Programm (Zurück: Beliebige Taste drücken)" 13 88
 				read -n 1 any
 				;;
 			0|"")
