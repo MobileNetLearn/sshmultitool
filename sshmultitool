@@ -19,7 +19,7 @@
 
 # Name, Versionsnummer und Fenstertitel des Programms
 name="SSH Multitool"
-version="2015-12-20-1"
+version="2015-12-20-2"
 title="$name - Version $version"
 
 # Folgende Variablen nur überschreiben
@@ -1127,7 +1127,7 @@ if [ -t 0 ]; then
 				if [ ! "$configfile_full" = "$configfile_main" ]; then
 					profiles_str="$profiles_str d Aktuelles_Profil_löschen"
 				fi
-				$command_dialog --title "$title" --menu "Profilauswahl\nAktuelles Profil: $(echo $configfile_full | sed -e 's/'$configfile_path_sed'\///' | sed -e 's/.'$configfile_ext'//' | sed -e 's/homescripts/Hauptprofil/')" 0 60 0 $profiles_str 2> $erg
+				$command_dialog --title "$title" --menu "Profilauswahl\nAktuelles Profil: $(echo $configfile_full | sed -e 's/'$configfile_path_sed'\///' | sed -e 's/.'$configfile_ext'//' | sed -e 's/sshmultitool/Hauptprofil/')" 0 60 0 $profiles_str 2> $erg
 				if [ -s "$erg" ]; then
 					clear
 					profile_index="$(cat $erg)"
