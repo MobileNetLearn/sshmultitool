@@ -44,6 +44,9 @@ configfile_main="$configfile_path/$configfile_main_name.$configfile_ext"
 configfile_template="$configfile_path/$configfile_main_name.$configfile_ext.template"
 configfile_full="$configfile_main"
 
+# Ermögliche das Script weiterhin als "home" auf zu rufen
+enable_legacy=false
+
 
 #######################################################################
 # VORSICHT!                                                           #
@@ -632,17 +635,110 @@ function check_for_updates {
 }
 
 function check_for_legacy_folders {
-	if [ -e "$HOME/.homeconnect" ]; then
-		if [ -e "$configfile_path" ]; then
-			mv "$HOME/.homeconnect/*" "$configfile_path"
-			rmdir "$HOME/.homeconnect"
-		else
-			mv "$HOME/.homeconnect" "$configfile_path"
-		fi
+	if [ -d "$HOME/.homeconnect" ]; then
+		echo "Es scheint als hätten sie bisher eine ältere Version dieses Skripts benutzt,"
+		echo "welche noch unter dem Namen \"home\" firmierte. Möchten sie den alten"
+		echo "Konfigurationspfad weiter verwenden? Dies wird über einen Softlink auf den"
+		echo "neuen Ordner realisiert. [j|n]"
+		read legacy_path_answer
+		
+		case $legacy_path_answer in
+			j|J)
+				#Softlinks anlegen
+				if [ -e "$configfile_path" ]; then
+					mv "$HOME/.homeconnect/*" "$configfile_path"
+					rmdir "$HOME/.homeconnect"
+				else
+					mv "$HOME/.homeconnect" "$configfile_path"
+				fi
+				if [ -e "$configfile_path/homescripts.cfg" ]; then
+					mv "$configfile_path/homescripts.cfg" "$configfile_main"
+				fi
+				if [ -e "$configfile_path/homescripts.cfg.template" ]; then
+					mv "$configfile_path/homescripts.cfg.template" "$configfile_template"
+				fi
+				ln -s "$configfile_main" "$configfile_path/homescripts.cfg"
+				ln -s "$configfile_template" "$configfile_path/homescripts.cfg.template"
+				ln -s "$configfile_path" "$HOME/.homeconnect"
+				;;
+			n|N)
+				#Just move everything
+				if [ -e "$configfile_path" ]; then
+					mv "$HOME/.homeconnect/*" "$configfile_path"
+					rmdir "$HOME/.homeconnect"
+				else
+					mv "$HOME/.homeconnect" "$configfile_path"
+				fi
+				if [ -e "$configfile_path/homescripts.cfg" ]; then
+					mv "$configfile_path/homescripts.cfg" "$configfile_main"
+				fi
+				if [ -e "$configfile_path/homescripts.cfg.template" ]; then
+					mv "$configfile_path/homescripts.cfg.template" "$configfile_template"
+				fi
+			*)
+				#Abbort
+				echo "Bitte entscheiden sie sich zwischen Ja oder Nein [j|n]."
+				echo "Abbruch!"
+				exit 1
+				;;
+		esac
+		
 	fi
-	if [ -e "$configfile_path/homescripts.cfg" ] || [ -e "$configfile_path/homescripts.cfg.template" ]; then
-		mv "$configfile_path/homescripts.cfg" "$configfile_main"
-		mv "$configfile_path/homescripts.cfg.template" "$configfile_template"
+}
+
+function enable_legacy_name {
+	oldprogpath="$(which home 2>/dev/null)"
+	if [ -z $oldprogpath ]; then
+		progpath="$(which $0)"
+		progdir=$(dirname "${progpath}")
+		if [ -w $progdir ]; then
+			sudo_dir=""
+			suffix_dir=""
+		else
+			if [[ "$(which sudo)" ]]; then
+				sudo_dir="sudo"
+				suffix_dir=""
+			else
+				sudo_dir="su -c '"
+				suffix_dir="'"
+			fi
+		fi
+		if [ -w $progpath ]; then
+			sudo_file=""
+			suffix_file=""
+		else
+			if [[ "$(which sudo)" ]]; then
+				sudo_file="sudo"
+				suffix_file=""
+			else
+				sudo_file="su -c '"
+				suffix_file="'"
+			fi
+		fi
+		
+		echo "Es scheint als hätten sie bisher eine ältere Version dieses Skripts benutzt,"
+		echo "welche noch unter dem Namen \"home\" firmierte. Möchten sie den"
+		echo "Legacy-Support aktivieren, welcher es ihnen ermöglicht das Skript weiterhin"
+		echo "mit \"home\" auf zu rufen? Dies wird durch Softlinks auf entsprechende"
+		echo "Programm-Dateien realisiert. Diese Entscheidung gilt Systemweit. [j|n]"
+		read legacy_answer
+		
+		case $legacy_answer in
+			j|J)
+				#Softlinks anlegen
+				$sudo_dir ln -s "$progpath" "$progdir/home" $suffix_dir
+				;;
+			n|N)
+				#Nothing to do
+				;;
+			*)
+				echo "Bitte entscheiden sie sich zwischen Ja oder Nein [j|n]."
+				echo "Abbruch!"
+				exit 1
+				;;
+		esac
+		
+		$sudo_file sed -i "s/enable_legacy=\"*.*\"/enable_legacy=true/" "$progpath" $suffix_file
 	fi
 }
 
@@ -652,6 +748,11 @@ function check_for_legacy_folders {
 
 # Wenn im Terminal geöffnet...
 if [ -t 0 ]; then
+	# Gegebenenfalls aufruf über alten Programmnamen ermöglichen
+	if ! [ enable_legacy ]; then
+		enable_legacy_name
+	fi
+	
 	# Nach altem Config-Ordner checken, ggbf. verschieben
 	check_for_legacy_folders
 
