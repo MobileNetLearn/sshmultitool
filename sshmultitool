@@ -19,7 +19,7 @@
 
 # Name, Versionsnummer und Fenstertitel des Programms
 name="SSH Multitool"
-version="2015-12-19_1"
+version="2015-12-20"
 title="$name - Version $version"
 
 # Folgende Variablen nur überschreiben
@@ -39,7 +39,7 @@ command_openvpn="$(which openvpn 2> /dev/null)"
 command_screen="$(which screen 2> /dev/null)"
 
 # Ort und Aufbau der Konfigurationsdateien
-configfile_path="$HOME/.homeconnect"
+configfile_path="$HOME/.sshmultitool"
 configfile_ext="cfg"
 configfile_main_name="homescripts"
 configfile_main="$configfile_path/$configfile_main_name.$configfile_ext"
@@ -642,6 +642,10 @@ function checkForUpdates {
 
 # Wenn im Terminal geöffnet...
 if [ -t 0 ]; then
+	# Nach altem Config-Ordner checken, ggbf. verschieben
+	if [ -e "$HOME/.homeconnect" ]; then
+		mv "$HOME/.homeconnect" "$configfile_path"
+	fi
 
 	# Abhängigkeiten auflösen
 	clear

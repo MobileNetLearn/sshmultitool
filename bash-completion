@@ -1,0 +1,27 @@
+#!/bin/bash
+
+_sshmultitool()
+{
+    local cur=${COMP_WORDS[COMP_CWORD]}
+    local prev=${COMP_WORDS[COMP_CWORD-1]}
+    case "$cur" in
+	-[pacmdr])
+	    COMPREPLY=( "$cur" )
+	    return 0
+	    ;;
+	*)
+	    ;;
+    esac
+    case "$prev" in
+	-[pacmdr])
+	    local configfilelist=$(cd ~/.sshmultitool/; ls *.cfg)
+	    local configlist=$(echo $configfilelist | sed 's/.cfg / /g;s/.cfg$/ /g')
+	    COMPREPLY=( $(compgen -W "$configlist" -- $cur) )
+	    return 0
+	    ;;
+	*)
+	    _filedir
+	    ;;
+     esac
+}
+complete -F _sshmultitool sshmultitool
