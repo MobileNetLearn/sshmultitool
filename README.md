@@ -1,9 +1,10 @@
 # SSH Multi Tool
 Ein Multifunktionswerkzeug für SSH, mit Unterstützung für [Port knocking](https://en.wikipedia.org/wiki/Port_knocking), [OpenVPN](https://en.wikipedia.org/wiki/OpenVPN) und [Unison](https://en.wikipedia.org/wiki/Unison_(file_synchronizer))!
 
-Dieses Programm ist in Bash geschrieben und besteht im Grunde genommen nur aus einer ausführbaren Datei sowie den Profildateien, die in `~/.sshmultitool` gespeichert werden.
+Dieses Programm ist in Bash geschrieben und besteht im Grunde genommen nur aus einer ausführbaren Datei, einem Bash-Skript, sowie den Profildateien, die in `~/.sshmultitool` gespeichert werden.    
+Das Skript verwendet die Programme des [OpenSSH-Pakets](http://www.openssh.com) sowie [knockd](https://github.com/jvinet/knock). Beide Softwarepakete sollten in allen größeren GNU/Linux-Distributionen enthalten sein.
 
-Es muss nicht kompiliert, sondern lediglich in einen Ordner, der in `$PATH` steht (z.B. `/usr/local/bin` oder `$HOME/bin`), kopiert werden. Dafür kann auch das `Makefile` (siehe [Installation](#installation)) verwendet werden.
+Das Programm muss nicht kompiliert, sondern lediglich in einen Ordner, der in `$PATH` steht (z.B. `/usr/local/bin` oder `$HOME/bin`), kopiert werden. Dafür kann auch das `Makefile` (siehe [Installation](#installation)) verwendet werden.
 
 ## Funktionen
 * Verbinden zu entfernten Rechnern via SSH
@@ -32,3 +33,12 @@ Einfach das Skript, `sshmultitool`, in einen Ordner packen, der in der `$PATH`-V
 
 Stattdessen kann auch das `Makefile` verwendet werden.    
 Dafür im Quellordner `make` ausführen. Dann wird, sofern nicht schon vorhanden, der Ordner `$HOME/bin` angelegt, das Skript dorthin kopiert, die Autovervollständigung in Bash eingerichtet sowie die Musterkonfiguration in `$HOME/.sshmultitool/sshmultitool.cfg.template` abgelegt.
+
+## Lizenz
+SSH Multi Tool steht unter der [GNU General Public Licsense Version 3](https://www.gnu.org/licenses/gpl-3.0.de.html) und ist somit [freie Software](https://fsfe.org/about/basics/freesoftware.de.html).    
+Das heißt, Sie dürfen das Programm frei verwenden, verändern und weiterverteilen, solange Sie die Lizenz beibehalten.    
+Zudem darf dieses Programm nicht in einem Paket mit proprietärer Software verteilt werden, da das die Grundsätze von freier Software ad absurdum führt.
+
+Zusätzlich wäre es wünschenswert, wenn Sie stets die originalen Autoren dieses Programms erwähnen bzw. die Nennungen im Code des Skripts beibehalten.
+
+Eine Verwendung für militärische oder sonstige Zwecke, die die freiheitliche Grundordnung oder Menschenleben, mit welcher Begründung auch immer, bedrohen, lehne ich strikt ab.
