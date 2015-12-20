@@ -1,0 +1,13 @@
+########## Known Bugs ##########
+# Ein - vor dem Bug bedeutet, dieser ist offen. Ein X davor bedeutet dieser wurde gefixet.
+#
+# - #0001 Microsoft has a majority market share (confirmed, critical)
+# X #0002 Wurde ein Profil über den parameter -p angegeben, lässt sich nur eine Datei per scp übertragen. (confirmed, uncritical, fixed)
+# X #0003 Das Kopieren von Dateien über den SCP-Eintrag im Menü funktioniert nicht, da die Auswahl auf /home/ verweist, worin sich in der Regel nur Ordner befinden, die aber nach Aussage des Scripts nicht kopiert werden können. Betreten kann man diese auch nicht. Lösungsvorschlag: Warum auf /home/ verweisen? Das aktuelle Verzeichnis wäre doch sinnvoller. (fixed)
+# X #0004 Schickt man mehrere Dateien an ein und das selbe Ziel, muss man für jede Datei das SSH-Passwort, bzw das PW für den RSA-Key eingeben. (fixed)
+# X #0005 Leerzeichen im Pfad der Config-Datei führen zu einem nicht einlesen der Config-Datei.
+# X #0006 Anlegen von Verzeichnissen als SFTP-Mountpoint außerhalb des Home-Verzeichnisses wird hardcoded mit "sudo" gemacht. (fixed)
+# - #0007 Die Versionskontrolle kontrolliert nur, ob die Version bei Pastebin eine andere ist, nicht ob es auch eine neuere ist. Man bekommt also auch ein "Downgrade" als Update angeboten.
+# - #0008 Das Installieren von noch fehlenden Paketen funktioniert nur wirklich zuverlässig mit Ubuntu und Debian; andere Paketnamen bei anderen Distros werden nicht berücksichtigt, daher ist u.U. manuelles Installieren von Abhängigkeiten nötig.
+#
+################################
