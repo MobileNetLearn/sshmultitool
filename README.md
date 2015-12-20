@@ -50,7 +50,7 @@ Wenn Sie zusätzlich Autovervollständigung in Bash haben möchten, führen Sie 
 ## Lizenz
 SSH Multi Tool steht unter der [GNU General Public Licsense Version 3](https://www.gnu.org/licenses/gpl-3.0.de.html) und ist somit [freie Software](https://fsfe.org/about/basics/freesoftware.de.html).    
 Das heißt, Sie dürfen das Programm frei verwenden, verändern und weiterverteilen, solange Sie die Lizenz beibehalten.    
-Zudem darf dieses Programm nicht in einem Paket mit proprietärer Software verteilt werden, da das die Grundsätze von freier Software ad absurdum führt.
+Zudem darf dieses Programm nicht in einem Paket mit proprietärer Software "als eins" verteilt werden, da das die Grundsätze von freier Software ad absurdum führt.
 
 Zusätzlich wäre es wünschenswert, wenn Sie stets die originalen Autoren dieses Programms erwähnen bzw. die Nennungen im Code des Skripts beibehalten.
 
