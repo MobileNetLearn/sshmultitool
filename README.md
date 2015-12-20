@@ -6,6 +6,8 @@ Das Skript verwendet die Programme des [OpenSSH-Pakets](http://www.openssh.com) 
 
 Das Programm muss nicht kompiliert, sondern lediglich in einen Ordner, der in `$PATH` steht (z.B. `/usr/local/bin` oder `$HOME/bin`), kopiert werden. Dafür kann auch das `Makefile` (siehe [Installation](#installation)) verwendet werden.
 
+SSH Multi Tool ist [freie Open Source Software](https://fsfe.org/about/basics/freesoftware.de.html) und steht unter der [GPL V3](https://www.gnu.org/licenses/gpl-3.0.de.html) (siehe [Lizenz](#lizenz))
+
 ## Funktionen
 * Verbinden zu entfernten Rechnern via SSH
 * Dateiaustausch via SCP, SFTP und SSHFS
