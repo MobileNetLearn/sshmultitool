@@ -289,7 +289,7 @@ function installPkg {
 	$sudo $manager $packages $suffix
 }
 
-function checkDeps {
+function check_for_dependencies {
 	if [[ ! -e "$command_ssh" ]]; then toInst=$toInst" openssh"; fi
 	if [[ ! -e "$command_dialog" ]]; then toInst=$toInst" dialog"; fi
 	if [[ ! -e "$command_wget" ]]; then toInst=$toInst" wget"; fi
@@ -633,6 +633,21 @@ function check_for_updates {
 	rm $tmpfile
 }
 
+function check_for_legacy_folders {
+	if [ -e "$HOME/.homeconnect" ]; then
+		if [ -e "$configfile_path" ]; then
+			mv "$HOME/.homeconnect/*" "$configfile_path"
+			rmdir "$HOME/.homeconnect"
+		else
+			mv "$HOME/.homeconnect" "$configfile_path"
+		fi
+	fi
+	if [ -e "$configfile_path/homescripts.cfg" ] || [ -e "$configfile_path/homescripts.cfg.template" ]; then
+		mv "$configfile_path/homescripts.cfg" "$configfile_main"
+		mv "$configfile_path/homescripts.cfg.template" "$configfile_template"
+	fi
+}
+
 #################
 # HAUPTPROGRAMM #
 #################
@@ -640,15 +655,11 @@ function check_for_updates {
 # Wenn im Terminal geöffnet...
 if [ -t 0 ]; then
 	# Nach altem Config-Ordner checken, ggbf. verschieben
-	if [ -e "$HOME/.homeconnect" ] || [ -e "$configfile_path/homescripts.cfg" ]; then
-		mv "$HOME/.homeconnect" "$configfile_path"
-		mv "$configfile_path/homescripts.cfg" "$configfile_main"
-		mv "$configfile_path/homescripts.cfg.template" "$configfile_template"
-	fi
+	check_for_legacy_folders
 
 	# Abhängigkeiten auflösen
 	clear
-	checkDeps
+	check_for_dependencies
 
 	# Temporäre Datei erzeugen
 	erg=$(mktemp) || (echo "Fehler beim anlegen der TEMP-Datei." && exit 1)
