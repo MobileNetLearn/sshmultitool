@@ -1,0 +1,31 @@
+## Konfigurationsdatei für das Heimverbindungsskript
+
+## Zu benutzender Texteditor, Dateimanager und Terminal
+editor="/usr/bin/nano"
+filemanager="/usr/bin/xdg-open"
+terminal="/usr/bin/x-terminal-emulator"
+
+## SSH Einstellungen
+## SSH-Port (Standard: 22), SSH-Parameter (C: Komprimierung, X: X-Forwarding)
+## SSH-Benutzer, SSH-Server (IP-Adresse oder Hostname)
+sshport=22
+sshparms="-C -X"
+user=BENUTZERNAME
+server=192.168.1.2
+
+## Knockd Einstellungen
+## Ob Portknocking verwendet wird (true/false), die Ports als Array (mit Leerzeichen getrennt), Pause nach Senden der "Klopfsignale" in Sek.
+knockd_enable=false
+knockd_ports=( 0 )
+knockd_sleep=2
+
+## Synchronisationseinstellungen für Unison
+sync_enable=false
+sync_params=""
+sync_profil=""
+sync_wait_afterwards=0
+
+## OpenVPN Einstellungen
+ovpn_enable=false
+ovpn_configfile="$HOME/vpn/example.ovpn"
+
