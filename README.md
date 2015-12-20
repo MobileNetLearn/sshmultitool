@@ -36,7 +36,8 @@ cd sshmultitool
 make
 ```
 
-Führe `sudo make install` statt `make` aus, wenn Du das Programm systemweit, in `/usr/local/bin`, installieren willst.
+Führe `sudo make install` statt `make` aus, wenn Du das Programm systemweit, in `/usr/local/bin`, installieren willst.    
+Wenn Du zusätzlich Autovervollständigung in Bash haben möchtest, führe zusätzlich `make bashcompletion` aus.
 
 ### Manuell
 `sshmultitool` [herunterladen](https://raw.githubusercontent.com/emkay443/sshmultitool/master/sshmultitool), ausführbar machen (`chmod +x sshmultitool`) und in einen Ordner legen, der in der `$PATH`-Variable liegt, z.B. `/usr/local/bin` oder `$HOME/bin` (bei Debian und Ubuntu standardmäßig via `$HOME/.profile` in der `$PATH`-Variable).
