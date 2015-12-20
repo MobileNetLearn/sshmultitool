@@ -28,6 +28,14 @@ SSH Multi Tool ist [freie Open Source Software](https://fsfe.org/about/basics/fr
 * Texteditor (Konsole oder grafisch, frei nach Belieben)
 * Optional: OpenVPN, Unison
 
+### Installation der Abhängigkeiten
+#### Ubuntu/Debian/Mint
+`sudo apt-get install bash openssh-client sshfs knockd dialog wget vim nano`
+
+#### Arch
+`sudo pacman -S bash openssh sshfs knockd dialog wget vim nano`
+
+
 ### Unterstützte Betriebssysteme
 * GNU/Linux (getestet auf Debian, Ubuntu und Arch)
 * Mac OS X (mit [MacPorts](https://www.macports.org/))
