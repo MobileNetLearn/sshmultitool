@@ -111,7 +111,7 @@ function ovpn_connect {
 				read answer
 				case $answer in
 					j|J|'')
-						installPkg $toInst
+						install_packages $toInst
 						knockknock
 						;;
 					*)
@@ -252,7 +252,7 @@ function cp_def_cfg {
 	esac
 }
 
-function installPkg {
+function install_packages {
 	packages=$*
 	if [[ "$(which sudo)" ]]; then
 		sudo="sudo"
@@ -307,7 +307,7 @@ function check_for_dependencies {
 		read answer
 		case $answer in
 			j|J|'')
-				installPkg $toInst
+				install_packages $toInst
 				;;
 			*)
 				echo "Dann halt nicht. Wundern Sie sich nicht über Fehler und unnormales Verhalten."
@@ -555,7 +555,7 @@ function check_for_updates {
 		answer=$?
 		case $answer in
 			0)
-				installPkg " dos2unix"
+				install_packages " dos2unix"
 				;;
 			*)
 				auto_update=false
