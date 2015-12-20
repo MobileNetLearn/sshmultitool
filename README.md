@@ -29,7 +29,7 @@ Das Programm muss nicht kompiliert, sondern lediglich in einen Ordner, der in `$
 * Windows (mit Cygwin)
 
 ## Installation
-Einfach das Skript, `sshmultitool`, in einen Ordner packen, der in der `$PATH`-Variable liegt, z.B. `/usr/local/bin` oder `$HOME/bin` (bei Debian und Ubuntu standardmäßig via .profile in der $PATH-Variable).
+Einfach das Skript, `sshmultitool`, in einen Ordner packen, der in der `$PATH`-Variable liegt, z.B. `/usr/local/bin` oder `$HOME/bin` (bei Debian und Ubuntu standardmäßig via `$HOME/.profile` in der `$PATH`-Variable).
 
 Stattdessen kann auch das `Makefile` verwendet werden.    
 Dafür im Quellordner `make` ausführen. Dann wird, sofern nicht schon vorhanden, der Ordner `$HOME/bin` angelegt, das Skript dorthin kopiert, die Autovervollständigung in Bash eingerichtet sowie die Musterkonfiguration in `$HOME/.sshmultitool/sshmultitool.cfg.template` abgelegt.
