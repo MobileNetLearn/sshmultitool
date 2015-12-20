@@ -1,8 +1,18 @@
+DESTDIR = $(HOME)/bin
+ifeq "$(USER)" "root"
+	DESTDIR = /usr/local/bin
+endif
+
 install:
-	sudo mkdir -p /etc/bash_completion.d
-	mkdir -p $(HOME)/bin
+ifneq "$(USER)" "root"
 	mkdir -p $(HOME)/.sshmultitool
-	sudo cp bash-completion /etc/bash_completion.d/sshmultitool
-	cp sshmultitool $(HOME)/bin
-	chmod +x $(HOME)/bin/sshmultitool
 	cp sshmultitool.cfg.template $(HOME)/.sshmultitool/sshmultitool.cfg.template
+endif
+	mkdir -p $(DESTDIR)
+	cp sshmultitool $(DESTDIR)
+	chmod +x $(DESTDIR)/sshmultitool
+	make bashcompletion
+
+bashcompletion:
+	sudo mkdir -p /etc/bash_completion.d
+	sudo cp bash-completion /etc/bash_completion.d/sshmultitool
