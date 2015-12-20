@@ -294,9 +294,7 @@ function check_for_dependencies {
 	if [[ ! -e "$command_dialog" ]]; then toInst=$toInst" dialog"; fi
 	if [[ ! -e "$command_wget" ]]; then toInst=$toInst" wget"; fi
 	if [[ ! "$(uname)" == *CYGWIN* ]] && [[ ! -e "$command_sshfs" ]]; then toInst=$toInst" sshfs"; fi
-	# if [[ ! -e "$command_vi" ]]; then toInst=$toInst" vi"; fi
 	if [[ ! -e "$command_mktemp" ]]; then toInst=$toInst" mktemp"; fi
-	if [[ ! "$(uname)" == *CYGWIN* ]] && [[ ! -e "$command_nc" ]]; then toInst=$toInst" netcat-openbsd"; fi
 	if [[ ! "$(uname)" == *CYGWIN* ]] && [[ ! -e "$command_knock" ]]; then toInst=$toInst" knockd"; fi
 
 	if [[ ! -z $toInst ]]; then
