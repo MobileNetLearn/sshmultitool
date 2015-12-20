@@ -28,8 +28,6 @@ Das Programm muss nicht kompiliert, sondern lediglich in einen Ordner, der in `$
 * Mac OS X (mit MacPorts)
 * Windows (mit Cygwin)
 
-## Download
-
 ## Installation
 ### Automatisch
 ```
