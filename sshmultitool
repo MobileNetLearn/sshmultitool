@@ -41,7 +41,7 @@ command_screen="$(which screen 2> /dev/null)"
 # Ort und Aufbau der Konfigurationsdateien
 configfile_path="$HOME/.sshmultitool"
 configfile_ext="cfg"
-configfile_main_name="homescripts"
+configfile_main_name="sshmultitool"
 configfile_main="$configfile_path/$configfile_main_name.$configfile_ext"
 configfile_template="$configfile_path/$configfile_main_name.$configfile_ext.template"
 configfile_full="$configfile_main"
@@ -64,11 +64,10 @@ weiter=true
 screen_name=home-$$
 
 configfile_path_sed="$(echo $configfile_path | sed 's/\//\\\//g')"
-configfile_dl_url="http://emkay443.de/private/scripts/homescripts.cfg"
+configfile_dl_url="https://raw.githubusercontent.com/emkay443/sshmultitool/master/sshmultitool.cfg.template"
 
-pastebin_file_code="cH21LUCW"
-pastebin_short_url="http://pastebin.com/"
-pastebin_long_url="http://pastebin.com/raw.php?i="
+github_url="https://github.com/emkay443/sshmultitool"
+github_file_url="https://raw.githubusercontent.com/emkay443/sshmultitool/master/sshmultitool"
 
 cygwin_knock_dl_url="http://emkay443.de/private/scripts/knock.exe"
 
@@ -547,7 +546,7 @@ function show_version_info {
 	echo "Authors: Michael Koch, Sebastian Lehne"
 	echo "Contact: m<DOT>koch<AT>emkay443<DOT>de"
 	echo "License: GNU General Public License v3 (http://www.gnu.de/documents/gpl-3.0.en.html)"
-	echo "Source: $pastebin_short_url$pastebin_file_code"
+	echo "Source: $github_url"
 	exit 0
 }
 
@@ -567,7 +566,7 @@ function checkForUpdates {
 	fi
 	tmpfile=$(mktemp) || (echo "Fehler beim anlegen der TEMP-Datei." && exit 1)
 	echo "Nach Updates wird gesucht. Bitte warten..."
-	$command_wget -O "$tmpfile" "$pastebin_long_url$pastebin_file_code"
+	$command_wget -O "$tmpfile" "$github_file_url"
 	case $? in
 		0)
 			if $auto_update; then
@@ -605,7 +604,7 @@ function checkForUpdates {
 								;;
 						esac
 					else
-						$command_dialog --title "$title" --msgbox "Es ist ein Update verfügbar: $new_version\n\nLaden Sie und installieren Sie es manuell von folgender Seite:\nhttp://pastebin.com/$pastebin_file_code" 0 0
+						$command_dialog --title "$title" --msgbox "Es ist ein Update verfügbar: $new_version\n\nLaden Sie und installieren Sie es manuell von folgender Seite:\n$github_file_url" 0 0
 					fi
 				else
 					if [ -w "$scriptfile" ]; then
@@ -643,8 +642,10 @@ function checkForUpdates {
 # Wenn im Terminal geöffnet...
 if [ -t 0 ]; then
 	# Nach altem Config-Ordner checken, ggbf. verschieben
-	if [ -e "$HOME/.homeconnect" ]; then
+	if [ -e "$HOME/.homeconnect" ] || [ -e "$configfile_path/homescripts.cfg" ]; then
 		mv "$HOME/.homeconnect" "$configfile_path"
+		mv "$configfile_path/homescripts.cfg" "$configfile_main"
+		mv "$configfile_path/homescripts.cfg.template" "$configfile_template"
 	fi
 
 	# Abhängigkeiten auflösen
@@ -781,7 +782,7 @@ if [ -t 0 ]; then
 	# Endlosschleife
 	while $weiter; do
 		if $sync_enable; then
-			$command_dialog --title "$title" --menu "Hauptmenü\nAktuelles Profil: $(echo $configfile_full | sed -e 's/'$configfile_path_sed'\///' | sed -e 's/.'$configfile_ext'//' | sed -e 's/homescripts/Hauptprofil/')" 0 0 0 \
+			$command_dialog --title "$title" --menu "Hauptmenü\nAktuelles Profil: $(echo $configfile_full | sed -e 's/'$configfile_path_sed'\///' | sed -e 's/.'$configfile_ext'//' | sed -e 's/sshmultitool/Hauptprofil/')" 0 0 0 \
 			1 "SSH Verbindung zum Server aufbauen" \
 			2 "Dateien via SCP an den Server senden" \
 			3 "SFTP Verbindung im Dateimanager öffnen" \
@@ -795,7 +796,7 @@ if [ -t 0 ]; then
 			\? "Über dieses Programm" \
 			0 "Programm beenden" 2> $erg
 		else
-			$command_dialog --title "$title" --menu "Hauptmenü\nAktuelles Profil: $(echo $configfile_full | sed -e 's/'$configfile_path_sed'\///' | sed -e 's/.'$configfile_ext'//' | sed -e 's/homescripts/Hauptprofil/')" 0 0 0 \
+			$command_dialog --title "$title" --menu "Hauptmenü\nAktuelles Profil: $(echo $configfile_full | sed -e 's/'$configfile_path_sed'\///' | sed -e 's/.'$configfile_ext'//' | sed -e 's/sshmultitool/Hauptprofil/')" 0 0 0 \
 			1 "SSH Verbindung zum Server aufbauen" \
 			2 "Dateien via SCP an den Server senden" \
 			3 "SFTP Verbindung im Dateimanager öffnen" \
@@ -1242,6 +1243,11 @@ fi
 exit 0
 
 ########### Changelog ##########
+# Version: 2015-12-20	Michael Koch
+# * Projekt von Pastebin zu Github verschoben, Update-Funktion angepasst
+# * "homescripts", "homeconnect" und "home" in "sshmultitool" umbenannt
+# + Funktion eingebaut, die entsprechend die alten Verzeichnisse verschiebt
+#
 # Version: 2015-12-19_1	Michael Koch
 # * Code aufgeräumt. Erhebe keinen Anspruch auf Vollständigkeit.
 # P (planned) Umzug auf git{hub,lab,(.*)}
