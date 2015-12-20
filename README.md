@@ -32,11 +32,11 @@ Das Programm muss nicht kompiliert, sondern lediglich in einen Ordner, der in `$
 
 ## Installation
 ### Automatisch
-...
-git clone https://github.com/emkay443/sshmultitool.git
-cd sshmultitool
+```
+git clone https://github.com/emkay443/sshmultitool.git    
+cd sshmultitool    
 make
-...
+```
 
 ### Manuell
 `sshmultitool` [herunterladen](https://raw.githubusercontent.com/emkay443/sshmultitool/master/sshmultitool), ausführbar machen (`chmod +x sshmultitool`) und in einen Ordner legen, der in der `$PATH`-Variable liegt, z.B. `/usr/local/bin` oder `$HOME/bin` (bei Debian und Ubuntu standardmäßig via `$HOME/.profile` in der `$PATH`-Variable).
