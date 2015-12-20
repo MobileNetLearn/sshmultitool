@@ -7,9 +7,9 @@ Ein Multifunktionswerkzeug für SSH, mit Unterstützung für [Port knocking](htt
 * Aufbau von SSH-Tunneln
 * Automatisches "Anklopfen" an einem mit knockd gesicherten Rechner
 * Automatisches Verbinden mit einem OpenVPN-Server
-* Profile
+* Profile (mehrere Server mit eigener Konfiguration können gespeichert werden)
 * Zwei Interfaces: ncurses (semigrafisch) und command-line
-* Automatische Updates (derzeit noch semi-broken, muss auf Umzug zu github angepasst werden)
+* Automatische Updates
 
 ## Voraussetzungen
 * Bash
