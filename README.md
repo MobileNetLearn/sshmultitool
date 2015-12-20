@@ -25,8 +25,8 @@ Das Programm muss nicht kompiliert, sondern lediglich in einen Ordner, der in `$
 
 ### Unterstützte Betriebssysteme
 * GNU/Linux (getestet auf Debian, Ubuntu und Arch)
-* Mac OS X (mit MacPorts)
-* Windows (mit Cygwin)
+* Mac OS X (mit [MacPorts](https://www.macports.org/))
+* Windows (mit [Cygwin](https://www.cygwin.com/))
 
 ## Changelog
 * 2015-12-20
