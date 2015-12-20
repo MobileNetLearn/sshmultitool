@@ -9,5 +9,6 @@
 # X #0006 Anlegen von Verzeichnissen als SFTP-Mountpoint außerhalb des Home-Verzeichnisses wird hardcoded mit "sudo" gemacht. (fixed)
 # - #0007 Die Versionskontrolle kontrolliert nur, ob die Version bei Pastebin eine andere ist, nicht ob es auch eine neuere ist. Man bekommt also auch ein "Downgrade" als Update angeboten.
 # - #0008 Das Installieren von noch fehlenden Paketen funktioniert nur wirklich zuverlässig mit Ubuntu und Debian; andere Paketnamen bei anderen Distros werden nicht berücksichtigt, daher ist u.U. manuelles Installieren von Abhängigkeiten nötig.
+# - #0009 Nach einem Update von einer alten Version (als es noch "home" hieß) funktionieren Profile, welche als Alias angelegt wurden, nicht mehr.
 #
 ################################
