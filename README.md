@@ -2,7 +2,7 @@
 Ein Multifunktionswerkzeug für SSH, mit Unterstützung für [Port knocking](https://en.wikipedia.org/wiki/Port_knocking), [OpenVPN](https://en.wikipedia.org/wiki/OpenVPN) und [Unison](https://en.wikipedia.org/wiki/Unison_(file_synchronizer))!
 
 Dieses Programm ist in Bash geschrieben und besteht im Grunde genommen nur aus einer ausführbaren Datei, einem Bash-Skript, sowie den Profildateien, die in `~/.sshmultitool` gespeichert werden.    
-Das Skript verwendet die Programme des [OpenSSH-Pakets](http://www.openssh.com) sowie [knockd](https://github.com/jvinet/knock). Beide Softwarepakete sollten in allen größeren GNU/Linux-Distributionen enthalten sein.
+Das Skript verwendet die Programme des [OpenSSH-Pakets](http://www.openssh.com) sowie [knockd](https://github.com/jvinet/knock). Beide Softwarepakete sollten in den Repositories aller größeren GNU/Linux-Distributionen enthalten sein.
 
 Das Programm muss nicht kompiliert, sondern lediglich in einen Ordner, der in `$PATH` steht (z.B. `/usr/local/bin` oder `$HOME/bin`), kopiert werden. Dafür kann auch das `Makefile` (siehe [Installation](#installation)) verwendet werden.
 
