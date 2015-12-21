@@ -6,6 +6,8 @@ Das Skript verwendet die Programme des [OpenSSH-Pakets](http://www.openssh.com) 
 
 Das Programm muss nicht kompiliert, sondern lediglich in einen Ordner, der in `$PATH` steht (z.B. `/usr/local/bin` oder `$HOME/bin`), kopiert werden. Dafür kann auch das `Makefile` (siehe [Installation](#installation)) verwendet werden.
 
+SSH Multi Tool ist [freie Open Source Software](https://fsfe.org/about/basics/freesoftware.de.html) und steht unter der [GPL V3](https://www.gnu.org/licenses/gpl-3.0.de.html) (siehe [Lizenz](#lizenz)).
+
 ## Funktionen
 * Verbinden zu entfernten Rechnern via SSH
 * Dateiaustausch via SCP, SFTP und SSHFS
@@ -20,13 +22,33 @@ Das Programm muss nicht kompiliert, sondern lediglich in einen Ordner, der in `$
 ## Voraussetzungen
 * Bash
 * OpenSSH sowie sshfs (optional, aber empfohlen)
+* knockd (bzw. den `knock`-Client, aber der ist in der Regel bei knockd dabei)
+* dialog
+* wget
+* make (für die Installation)
 * Texteditor (Konsole oder grafisch, frei nach Belieben)
 * Optional: OpenVPN, Unison
 
+### Installation der Abhängigkeiten
+#### Ubuntu/Debian/Mint
+`sudo apt-get install bash openssh-client sshfs knockd dialog wget vim nano make`
+
+#### Arch
+`sudo pacman -S bash openssh sshfs knockd dialog wget vim nano make`
+
+#### Cygwin (mit [apt-cyg](https://github.com/transcode-open/apt-cyg))
+```
+apt-cyg install bash openssh dialog wget vim nano unzip
+wget http://www.zeroflux.org/proj/knock/files/knock-cygwin.zip
+unzip knock-cygwin.zip
+mv knock_client/windows-cmd/knock.exe /bin/knock.exe
+```    
+Alternativ können die im oberen Befehl genannten Pakete auch manuell über den [Cygwin-Installer](https://cygwin.com/install.html) installiert werden, ohne `apt-cyg`.
+
 ### Unterstützte Betriebssysteme
 * GNU/Linux (getestet auf Debian, Ubuntu und Arch)
-* Mac OS X (mit MacPorts)
-* Windows (mit Cygwin)
+* Mac OS X (mit [MacPorts](https://www.macports.org/))
+* Windows (mit [Cygwin](https://www.cygwin.com/))
 
 ## Changelog
 * 2015-12-20
