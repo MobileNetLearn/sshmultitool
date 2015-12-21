@@ -42,8 +42,8 @@ apt-cyg install bash openssh dialog wget vim nano unzip
 wget http://www.zeroflux.org/proj/knock/files/knock-cygwin.zip
 unzip knock-cygwin.zip
 mv knock_client/windows-cmd/knock.exe /bin/knock.exe
-```
-
+```    
+Alternativ können die im oberen Befehl genannten Pakete auch manuell über den [Cygwin-Installer](https://cygwin.com/install.html) installiert werden, ohne `apt-cyg`.
 
 ### Unterstützte Betriebssysteme
 * GNU/Linux (getestet auf Debian, Ubuntu und Arch)
