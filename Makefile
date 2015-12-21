@@ -1,6 +1,8 @@
 DESTDIR = $(HOME)/bin
+BASHCOMPDIR = $(HOME)/.bash_completion.d
 ifeq "$(USER)" "root"
 	DESTDIR = /usr/local/bin
+	BASHCOMPDIR = /etc/bash_completion.d
 endif
 
 install:
@@ -13,5 +15,5 @@ endif
 	chmod +x $(DESTDIR)/sshmultitool
 
 bashcompletion:
-	sudo mkdir -p /etc/bash_completion.d
-	sudo cp bash-completion /etc/bash_completion.d/sshmultitool
+	mkdir -p $(BASHCOMPDIR)
+	cp bash-completion $(BASHCOMPDIR)/sshmultitool
