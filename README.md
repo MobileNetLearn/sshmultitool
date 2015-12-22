@@ -15,7 +15,7 @@ SSH Multi Tool ist [freie Open Source Software](https://fsfe.org/about/basics/fr
 * Automatisches "Anklopfen" an einem mit knockd gesicherten Rechner
 * Automatisches Verbinden mit einem OpenVPN-Server
 * Profile (mehrere Server mit eigener Konfiguration können gespeichert werden)
-* Synchronisation der Profildateien mit Unison
+* Synchronisation mit Unison über SSH
 * Zwei Interfaces: ncurses (semigrafisch) und command-line
 * Automatische Updates
 
@@ -67,7 +67,7 @@ Führen Sie `sudo make install` statt `make` aus, wenn Sie das Programm systemwe
 Wenn Sie zusätzlich Autovervollständigung in Bash haben möchten, führen Sie zusätzlich `make bashcompletion` aus.
 
 ### Manuell
-`sshmultitool` [herunterladen](https://raw.githubusercontent.com/emkay443/sshmultitool/master/sshmultitool), ausführbar machen (`chmod +x sshmultitool`) und in einen Ordner legen, der in der `$PATH`-Variable liegt, z.B. `/usr/local/bin` oder `$HOME/bin` (bei Debian und Ubuntu standardmäßig via `$HOME/.profile` in der `$PATH`-Variable).
+`sshmultitool` [herunterladen](https://raw.githubusercontent.com/emkay443/sshmultitool/master/sshmultitool), ausführbar machen (`chmod +x sshmultitool`) und in einen Ordner legen, der in der `$PATH`-Variable liegt, z.B. `/usr/local/bin` oder `$HOME/bin` (bei Ubuntu standardmäßig via `$HOME/.profile` in der `$PATH`-Variable).
 
 ## Lizenz
 SSH Multi Tool steht unter der [GNU General Public Licsense Version 3](https://www.gnu.org/licenses/gpl-3.0.de.html) und ist somit [freie Software](https://fsfe.org/about/basics/freesoftware.de.html).    
