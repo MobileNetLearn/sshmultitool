@@ -25,3 +25,4 @@ _sshmultitool()
      esac
 }
 complete -F _sshmultitool sshmultitool
+complete -F _sshmultitool home
