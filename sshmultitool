@@ -635,7 +635,7 @@ function check_for_updates {
 }
 
 function check_for_legacy_folders {
-	if [ -d "$HOME/.homeconnect" ]; then
+	if [ ! -L "$HOME/.homeconnect" -a -d "$HOME/.homeconnect" ] ; then
 		echo "Es scheint als hätten sie bisher eine ältere Version dieses Skripts benutzt,"
 		echo "welche noch unter dem Namen \"home\" firmierte. Möchten sie den alten"
 		echo "Konfigurationspfad weiter verwenden? Dies wird über einen Softlink auf den"
