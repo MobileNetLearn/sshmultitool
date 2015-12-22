@@ -45,7 +45,7 @@ configfile_template="$configfile_path/$configfile_main_name.$configfile_ext.temp
 configfile_full="$configfile_main"
 
 # Ermögliche das Script weiterhin als "home" auf zu rufen
-enable_legacy=false
+check_enable_legacy=true
 
 
 #######################################################################
@@ -689,7 +689,7 @@ function check_for_legacy_folders {
 
 function enable_legacy_name {
 	oldprogpath="$(which home 2>/dev/null)"
-	if [ -z $oldprogpath ]; then
+	if [ ! -z $oldprogpath -a ! -L $oldprogpath ]; then
 		progpath="$(which $0)"
 		progdir=$(dirname "${progpath}")
 		if [ -w $progdir ]; then
@@ -704,6 +704,7 @@ function enable_legacy_name {
 				suffix_dir="'"
 			fi
 		fi
+		
 		if [ -w $progpath ]; then
 			sudo_file=""
 			suffix_file=""
@@ -714,6 +715,19 @@ function enable_legacy_name {
 			else
 				sudo_file="su -c '"
 				suffix_file="'"
+			fi
+		fi
+
+		if [ -w $oldprogpath ]; then
+			sudo_old=""
+			suffix_old=""
+		else
+			if [[ "$(which sudo)" ]]; then
+				sudo_old="sudo"
+				suffix_old=""
+			else
+				sudo_old="su -c '"
+				suffix_old="'"
 			fi
 		fi
 		
@@ -727,6 +741,7 @@ function enable_legacy_name {
 		case $legacy_answer in
 			j|J)
 				#Softlinks anlegen
+				$sudo_old rm -i "$oldprogpath" $suffix_old
 				$sudo_dir ln -s "$progpath" "$progdir/home" $suffix_dir
 				;;
 			n|N)
@@ -739,7 +754,7 @@ function enable_legacy_name {
 				;;
 		esac
 		
-		$sudo_file sed -i "s/enable_legacy=\"*.*\"/enable_legacy=true/" "$progpath" $suffix_file
+		$sudo_file sed -i "s/^check_enable_legacy=true/check_enable_legacy=false/" "$progpath" $suffix_file
 	fi
 }
 
@@ -750,7 +765,7 @@ function enable_legacy_name {
 # Wenn im Terminal geöffnet...
 if [ -t 0 ]; then
 	# Gegebenenfalls aufruf über alten Programmnamen ermöglichen
-	if ! [ enable_legacy ]; then
+	if [ check_enable_legacy ]; then
 		enable_legacy_name
 	fi
 	
