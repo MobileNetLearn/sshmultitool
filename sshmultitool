@@ -17,7 +17,7 @@
 
 # Name, Versionsnummer und Fenstertitel des Programms
 name="SSH Multitool"
-version="2015-12-22"
+version="2015-12-22_1"
 title="$name - Version $version"
 
 # Folgende Variablen nur überschreiben
@@ -321,7 +321,7 @@ function check_for_dependencies {
 	fi
 }
 
-function uploadFiles {
+function upload_files {
 	local skip_elements=0
 	local number_of_files=0
 	local file_indizes=( )
@@ -641,7 +641,7 @@ function check_for_legacy_folders {
 		echo "Konfigurationspfad weiter verwenden? Dies wird über einen Softlink auf den"
 		echo "neuen Ordner realisiert. [j|n]"
 		read legacy_path_answer
-		
+
 		case $legacy_path_answer in
 			j|J)
 				#Softlinks anlegen
@@ -683,7 +683,7 @@ function check_for_legacy_folders {
 				exit 1
 				;;
 		esac
-		
+
 	fi
 }
 
@@ -802,7 +802,7 @@ if [ -t 0 ]; then
 			"-p"|"--profil"|"--profile")
 				if [ ! -z "$2" ]; then
 					change_profile "$2"
-					uploadFiles $#
+					upload_files $#
 				else
 					list_profiles
 				fi
@@ -871,7 +871,7 @@ if [ -t 0 ]; then
 				update_only_download=true
 				;;
 			*)
-				uploadFiles $#
+				upload_files $#
 				echo "Ungültige Option: $1"
 				show_help
 				exit 1
