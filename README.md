@@ -51,6 +51,8 @@ Alternativ können die im oberen Befehl genannten Pakete auch manuell über den 
 * Windows (mit [Cygwin](https://www.cygwin.com/))
 
 ## Changelog
+* 2015-12-22
+  * Verschiebung von `$HOME/.homeconnect` zu `$HOME/.sshmultitool` ist jetzt optional (mit Symlinks zu den alten Verzeichnissen)
 * 2015-12-20
   * Projekt auf github verschoben
   * Umbenannt in "SSH Multi Tool"
@@ -67,7 +69,7 @@ Führen Sie `sudo make install` statt `make` aus, wenn Sie das Programm systemwe
 Wenn Sie zusätzlich Autovervollständigung in Bash haben möchten, führen Sie zusätzlich `make bashcompletion` (bzw. mit `sudo` für systemweite Autovervollständigung) aus.
 
 ### Manuell
-`sshmultitool` [herunterladen](https://raw.githubusercontent.com/emkay443/sshmultitool/master/sshmultitool), ausführbar machen (`chmod +x sshmultitool`) und in einen Ordner legen, der in der `$PATH`-Variable liegt, z.B. `/usr/local/bin` oder `$HOME/bin` (bei Ubuntu standardmäßig via `$HOME/.profile` in der `$PATH`-Variable).
+`sshmultitool` [herunterladen](https://raw.githubusercontent.com/emkay443/sshmultitool/master/sshmultitool), ausführbar machen (`chmod +x sshmultitool`) und in einen Ordner legen, der in der `$PATH`-Variable liegt, z.B. `/usr/local/bin` oder `$HOME/bin` (bei Debian und Ubuntu standardmäßig via `$HOME/.profile` in der `$PATH`-Variable).
 
 ## Lizenz
 SSH Multi Tool steht unter der [GNU General Public Licsense Version 3](https://www.gnu.org/licenses/gpl-3.0.de.html) und ist somit [freie Software](https://fsfe.org/about/basics/freesoftware.de.html).    
