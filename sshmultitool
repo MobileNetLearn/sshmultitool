@@ -675,6 +675,7 @@ function check_for_legacy_folders {
 				if [ -e "$configfile_path/homescripts.cfg.template" ]; then
 					mv "$configfile_path/homescripts.cfg.template" "$configfile_template"
 				fi
+				;;
 			*)
 				#Abbort
 				echo "Bitte entscheiden sie sich zwischen Ja oder Nein [j|n]."
