@@ -220,6 +220,7 @@ function synchronise {
 }
 
 function dl_def_cfg {
+	mkdir -p "$configfile_path"
 	echo "Für die richtige Funktionalität des Skripts muss eine Konfigurationsdatei aus dem Internet heruntergeladen werden."
 	echo "Soll das für Sie getan werden? [J|n]"
 	read answer
