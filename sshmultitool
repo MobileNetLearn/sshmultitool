@@ -17,7 +17,7 @@
 
 # Name, Versionsnummer und Fenstertitel des Programms
 name="SSH Multitool"
-version="2015-12-29"
+version="2015-12-29_1"
 title="$name - Version $version"
 
 # Folgende Variablen nur überschreiben
