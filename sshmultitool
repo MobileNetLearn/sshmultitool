@@ -1242,7 +1242,7 @@ if [ -t 0 ]; then
 					profile_pos=$(($parm_pos+2))
 					if [ ! -z "${!profile_pos}" ]; then
 						change_profile "${!profile_pos}"
-						uploadFiles $#
+						upload_files $#
 					else
 						list_profiles
 					fi
