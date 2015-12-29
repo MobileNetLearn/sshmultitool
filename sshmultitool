@@ -17,7 +17,7 @@
 
 # Name, Versionsnummer und Fenstertitel des Programms
 name="SSH Multitool"
-version="2015-12-28"
+version="2015-12-29"
 title="$name - Version $version"
 
 # Folgende Variablen nur überschreiben
@@ -98,6 +98,413 @@ function knockknock {
 			fi
 			sleep $knockd_sleep
 		done
+	fi
+}
+
+function ssh_connect {
+	clear
+	ovpn_connect
+	knockknock
+	$command_ssh $sshparms $user@$server -p $sshport
+	# read -n 1 any
+	ovpn_disconnect
+}
+
+function scp_connect {
+	weiter_scp=true
+	while $weiter_scp; do
+		curworkdir=$(pwd)
+		$command_dialog --title "$title" --fselect $(echo "$curworkdir/") 10 70 2> $erg
+		file_scp=$(cat $erg)
+		if [ -z "$file_scp" ]; then
+			weiter_scp=false
+		elif [ ! -e "$file_scp" ]; then
+			$command_dialog --title "$title" --msgbox "Die Datei existiert nicht." 0 0
+		elif [ -d "$file_scp" ]; then
+			$command_dialog --title "$title" --msgbox "Sie können nur Dateien, keine Ordner versenden!" 5 65
+		else
+			$command_dialog --title "$title" --no-cancel --inputbox "Geben Sie den Zielort der Datei auf dem Server an.\nLeer lassen, um in den Benutzerordner hochzuladen" 10 70 2> $erg
+			destpath="$(cat $erg)"
+			clear
+			firstbyte=$(echo $file_scp | cut -b 1)
+			if [ "$firstbyte" == "/" ]; then
+				filepath=$file_scp
+			else
+				curworkdir=$(pwd)
+				filepath="$curworkdir/$file_scp"
+			fi
+			ovpn_connect
+			knockknock
+			$command_scp -P $sshport "$filepath" $user@$server:"$destpath"
+			weiter_scp=false
+			echo "Drücken Sie eine beliebige Taste, um in das Hauptmenü zurückzukehren"
+			read -n 1 any
+			ovpn_disconnect
+		fi
+	done
+}
+
+function sftp_connect {
+	if [[ ! "$(uname)" == *CYGWIN* ]]; then
+		clear
+		ovpn_connect
+		knockknock
+		$filemanager "sftp://$user@$server:$sshport"
+		ovpn_disconnect
+	else
+		$command_dialog --title "$title" --msgbox "Unter Windows ist dies so direkt nicht möglich.\nWir empfehlen daher, \"WinSCP\" dafür zu installieren." 7 65
+	fi
+}
+
+function sshfs_connect {
+	if [[ ! "$(uname)" == *CYGWIN* ]]; then
+		clear
+		break=false
+		$command_dialog --title "$title" --inputbox "Geben Sie den einzubindenden Ordner an" 10 60 "/" 2> $erg
+		sshfsdir=$(cat $erg)
+		if [ ! -z "$sshfsdir" ]; then
+			$command_dialog --title "$title" --inputbox "Geben Sie den anzumeldenden Benutzer an" 10 60 "$user" 2> $erg
+			sshfsuser=$(cat $erg)
+			if [ ! -z "$sshfsuser" ]; then
+				doAgain=true
+				while $doAgain; do
+					$command_dialog --title "$title" --no-cancel --inputbox "Geben Sie den Mountpunkt an.\nDer Ordner muss für Ihren Benutzer beschreibbar sein!" 10 60 "$HOME/sshfs_auf_$server" 2> $erg
+					sshfsmnt=$(cat $erg)
+					if [ ! -z "$sshfsmnt" ]; then
+						if [ ! -e "$sshfsmnt" ]; then
+							$command_dialog --title "$title" --yesno "Der Mountpunkt existiert nicht.\nSoll er erstellt werden?" 7 60
+							answer=$?
+							case $answer in
+								0)
+									if [ -w "$(dirname $sshfsmnt)" ]; then
+										mkdir -p $sshfsmnt
+									else
+										echo "Sie benötigen erhöhte Schreibrechte, um den Ordner anlegen zu können."
+										if [[ "$(which sudo)" ]]; then
+											echo "Bitte geben Sie ihr Benutzerpasswort ein, um zu bestätigen."
+											sudo mkdir -p "$sshfsmnt"
+											sudo chown $USER@$GROUPS "$sshfsmnt"
+										else
+											echo "Bitte geben Sie ihr Rootpasswort ein, um zu bestätigen."
+											su -c "mkdir -p \"$sshfsmnt\""
+											su -c "chown $USER@$GROUPS \"$sshfsmnt\""
+										fi
+									fi
+									;;
+								1|255)
+									$command_dialog --title "$title" --msgbox "Der Mountpunkt wurde nicht erstellt" 5 60
+									break=true
+									doAgain=false
+									;;
+							esac
+						fi
+						clear
+						if ! $break; then
+							if [ -w "$sshfsmnt" ]; then
+								ovpn_connect
+								knockknock
+								echo "Baue Verbindung via SSHFS auf. Um zu beenden, drücken Sie CTRL-C"
+								$command_sshfs "$sshfsuser@$server:$sshfsdir" "$sshfsmnt" -C -p $sshport -f
+								ovpn_disconnect
+								doAgain=false
+							else
+								$command_dialog --title "$title" --msgbox "Der Mountpunkt ist NUR mit root-Rechten schreibbar!\nGeben Sie einen Mountpunkt an, auf den Sie auch schreiben dürfen" 7 65
+							fi
+						fi
+					else
+						doAgain=false
+					fi
+				done
+				if [ ! -z "$sshfsmnt" ] && ! $break; then
+					clear
+					$command_dialog --title "$title" --yesno "Soll der Mountpunkt gelöscht werden?" 5 60
+					answer=$?
+					case $answer in
+						0)
+							if [ -w "$sshfsmnt" ]; then
+								rmdir "$sshfsmnt"
+								$command_dialog --title "$title" --msgbox "Der Mountpunkt wurde erfolgreich gelöscht" 5 60
+							else
+								$command_dialog --title "$title" --msgbox "Der Mountpunkt darf nicht gelöscht werden!" 5 60
+								exit 1
+							fi
+							;;
+						1|255)
+							$command_dialog --title "$title" --msgbox "Der Mountpunkt wurde nicht gelöscht" 5 60
+							;;
+					esac
+				fi
+			fi
+		fi
+	else
+		$command_dialog --title "$title" --msgbox "Unter Windows ist dies so direkt nicht möglich.\nWir empfehlen daher, \"Swish\" dafür zu installieren." 7 65
+	fi
+}
+
+function tunnel_connect {
+	clear
+	break=false
+	$command_dialog --title "$title" --inputbox "Geben Sie die Quelladresse an" 0 0 "localhost" 2> $erg
+	if [ -s "$erg" ]; then
+		sourceaddr=$(cat $erg)
+		$command_dialog --title "$title" --menu "Wählen Sie den Quellport aus" 0 0 0 \
+			20 "FTP (Datenübertragung)" \
+			21 "FTP (Anmeldung und Kontrolle)" \
+			22 "SSH" \
+			23 "Telnet" \
+			25 "SMTP" \
+			53 "DNS" \
+			80 "HTTP" \
+			110 "POP3" \
+			113 "IRC Ident" \
+			115 "SFTP" \
+			118 "SQL" \
+			143 "IMAP" \
+			194 "IRC" \
+			220 "IMAP v3" \
+			443 "HTTPS" \
+			445 "Samba" \
+			531 "AOL Instant Messenger, IRC" \
+			587 "SMTP (alternativ)" \
+			631 "IPP" \
+			989 "FTPS (Datenübertragung)" \
+			990 "FTPS (Anmeldung und Kontrolle)" \
+			992 "Telnet via TLS/SSL" \
+			993 "IMAPS" \
+			995 "POP3S" \
+			1080 "SOCKS proxy" \
+			1194 "OpenVPN" \
+			2401 "CVS" \
+			3074 "Xbox LIVE, Games for Windows-Live" \
+			3306 "MySQL" \
+			3389 "RDP" \
+			3724 "World of Warcraft" \
+			5190 "ICQ und AIM" \
+			5500 "VNC (alternativ)" \
+			5800 "VNC über HTTP" \
+			5900 "VNC" \
+			6112 "Battle.net" \
+			8008 "HTTP Alternative" \
+			8080 "HTTP Alternative" \
+			8767 "TeamSpeak 2" \
+			9001 "Tor" \
+			9030 "Tor (alt.)" \
+			9050 "Tor (alt.)" \
+			9051 "Tor (alt.)" \
+			9418 "git" \
+			9987 "TeamSpeak 3" \
+			10000 "Webmin" \
+			11371 "OpenPGP Key Server" \
+			20000 "Usermin" \
+			25565 "MySQL, Minecraft" \
+			X "Port manuell eingeben" \
+			A "Alle Quellports" \
+			0 "Programm beenden" 2> $erg
+		sourceport=$(cat $erg)
+		case "$sourceport" in
+			X)
+				$command_dialog --title "$title" --inputbox "Geben Sie den Quellport an" 0 0 2> $erg
+				if [ -s "$erg" ]; then
+					sourceport=$(cat $erg)
+					$command_dialog --title "$title" --inputbox "Geben Sie den Zielport an" 0 0 2> $erg
+					if [ -s "$erg" ]; then
+						destport=$(cat $erg)
+					else
+						break=true
+					fi
+				else
+					break=true
+				fi
+				;;
+			A)
+				$command_dialog --title "$title" --inputbox "Geben Sie den Zielport an" 0 0 2> $erg
+				if [ -s "$erg" ]; then
+					destport=$(cat $erg)
+					ovpn_connect
+					knockknock
+					echo "Geben Sie 'localhost:$destport' als SOCKS-Proxy in Ihrem Browser ein."
+					echo "Um zu beenden, drücken Sie CTRL-C"
+					$command_ssh -C -N -L -D $destport $user@$server -p $sshport
+					ovpn_disconnect
+				fi
+				break=true
+				;;
+			0|"")
+				echo "Dann halt nicht..."
+				break=true
+				;;
+			*)
+				$command_dialog --title "$title" --inputbox "Geben Sie den Zielport an" 0 0 2> $erg
+				if [ -s "$erg" ]; then
+					destport=$(cat $erg)
+				else
+					break=true
+				fi
+				;;
+		esac
+		if ! $break; then
+			ovpn_connect
+			knockknock
+			echo "Lassen Sie die Verbindung zum Server so lange bestehen, wie der Tunnel aktiv sein soll."
+			echo "Um zu beenden, drücken Sie CTRL-C"
+			if [ $destport -lt 1024 ]; then
+				echo "Sie haben einen Port kleiner als 1024 gewählt. Das erfordert root-Rechte."
+				if [[ "$(which sudo)" ]]; then
+					sudo $command_ssh -C -N -L localhost:$destport:$sourceaddr:$sourceport $user@$server -p $sshport
+				else
+					su -c "$command_ssh -C -N -L localhost:$destport:$sourceaddr:$sourceport $user@$server -p $sshport"
+				fi
+			else
+				$command_ssh -C -N -L localhost:$destport:$sourceaddr:$sourceport $user@$server -p $sshport
+			fi
+			ovpn_disconnect
+		fi
+	fi
+}
+
+function ssh_keygen {
+	weiter_kg=true
+	while $weiter_kg; do
+		clear
+		$command_dialog --title "$title" --no-cancel --inputbox "Geben Sie die Parameter für den Schlüsselgenerator an (optional)\nLeer lassen, wenn Sie damit nicht vertraut sind\nGeben Sie 'man' ein, wenn Sie die Man-Page sehen\noder 'exit', wenn Sie zurück ins Hauptmenü möchten" 10 70 2> $erg
+		keygenparms=$(cat $erg)
+		clear
+		if [ "$keygenparms" = "man" ]; then
+			man ssh-keygen
+		elif [ "$keygenparms" = "exit" ]; then
+			weiter_kg=false
+		else
+			$command_ssh_keygen $keygenparms
+			weiter_kg=false
+			echo "Beliebige Taste drücken, um zum Hauptmenü zurückzukehren"
+			read -n 1 any
+		fi
+	done
+}
+
+function ssh_custom_connect {
+	clear
+	$command_dialog --title "$title" --inputbox "Geben Sie die Serveradresse an" 0 0 2> $erg
+	if [ -s "$erg" ]; then
+		tmpserver=$(cat $erg)
+		$command_dialog --title "$title" --inputbox "Geben Sie den Benutzernamen an" 0 0 2> $erg
+		if [ -s "$erg" ]; then
+			tmpuser=$(cat $erg)
+			$command_dialog --title "$title" --no-cancel --inputbox "Geben Sie die SSH-Parameter an" 0 0 "-X -C" 2> $erg
+			tmpparms=$(cat $erg)
+			$command_ssh $tmpparms $tmpuser@$tmpserver -p $sshport
+		fi
+	fi
+}
+
+function edit_config_file {
+	clear
+	# Die Konfiguration bearbeiten
+	if [ ! -e "$(which $editor)" ]; then editor="/usr/bin/nano"; fi
+	if [ ! -e "$(which $editor)" ]; then editor="/usr/bin/vi"; fi
+	"$editor" "$configfile_full"
+	# Konfigurationsdatei neu einlesen
+	. "$configfile_full"
+}
+
+function edit_profiles {
+	profiles_arr=($(ls $configfile_path/*.cfg | grep -v $configfile_main | sed -e 's/'$configfile_path_sed'\///' | sed -e 's/.'$configfile_ext'//'))
+	profiles_str="0 Hauptprofil"
+	counter=1
+	for profile in "${profiles_arr[@]}"; do
+		profiles_str="$profiles_str $counter $profile"
+		let counter++
+	done
+	profiles_str="$profiles_str n Neues_Profil_erstellen"
+	profiles_str="$profiles_str c Aktuelles_Profil_kopieren"
+	if [ ! "$configfile_full" = "$configfile_main" ]; then
+		profiles_str="$profiles_str d Aktuelles_Profil_löschen"
+	fi
+	$command_dialog --title "$title" --menu "Profilauswahl\nAktuelles Profil: $(echo $configfile_full | sed -e 's/'$configfile_path_sed'\///' | sed -e 's/.'$configfile_ext'//' | sed -e 's/sshmultitool/Hauptprofil/')" 0 60 0 $profiles_str 2> $erg
+	if [ -s "$erg" ]; then
+		clear
+		profile_index="$(cat $erg)"
+		case "$(cat $erg)" in
+			0)
+				configfile_full="$configfile_main"
+				. "$configfile_full"
+				;;
+			"n")
+				weiter_np=true
+				skip=false
+				while $weiter_np; do
+					$command_dialog --title "$title" --inputbox "Geben Sie den Namen des neuen Profils ein\nVerbotene Zeichen sind: \$, /, \\ und das Leerzeichen" 10 60 "profilNeu" 2> $erg
+					profil_name=$(cat $erg)
+					if [ ! -z "$profil_name" ]; then
+						if [ ! -z "$(echo $profil_name | grep [' '\\/\$])" ]; then
+							$command_dialog --title "$title" --msgbox "Der Name beinhaltet verbotene Zeichen.\nBitte wählen Sie einen Namen ohne /, \\, \$ und Leerzeichen" 7 70
+						elif [ ! -e "$configfile_path/$profil_name.$configfile_ext" ]; then
+							clear
+							configfile_full="$configfile_path/$profil_name.$configfile_ext"
+							cp_def_cfg
+							weiter_np=false
+							$command_dialog --title "$title" --msgbox "Das Profil wurde erfolgreich erzeugt." 5 60
+						else
+							$command_dialog --title "$title" --msgbox "Ein Profil mit diesem Namen existiert bereits!\nBitte wählen Sie einen neuen Namen für das Profil" 7 60
+						fi
+					else
+						weiter_np=false
+					fi
+				done
+				;;
+			"d")
+				if [ ! "$configfile_full" = "$configfile_main" ]; then
+					clear
+					$command_dialog --title "$title" --yesno "Wollen Sie das aktuelle Profil wirklich löschen?" 5 60
+					answer=$?
+					case $answer in
+						0)
+							rm "$configfile_full"
+							configfile_full="$configfile_main"
+							$command_dialog --title "$title" --msgbox "Das Profil wurde erfolgreich gelöscht" 5 60
+							;;
+						1|255)
+							$command_dialog --title "$title" --msgbox "Das Profil wurde nicht gelöscht" 5 60
+							;;
+					esac
+				else
+					$command_dialog --title "$title" --msgbox "Das Hauptprofil kann nicht gelöscht werden" 5 60
+				fi
+				;;
+			"c")
+				weiter_cp=true
+				while $weiter_cp; do
+					$command_dialog --title "$title" --inputbox "Geben Sie den Namen des neuen Profils ein\nVerbotene Zeichen sind: \$, /, \\ und das Leerzeichen" 10 60 "profilNeu" 2> $erg
+					profil_name="$(cat $erg)"
+					if [ ! -z "$profil_name" ]; then
+							if [ ! -z "$(echo $profil_name | grep [' '\\/\$])" ]; then
+								$command_dialog --title "$title" --msgbox "Der Name beinhaltet verbotene Zeichen.\nBitte wählen Sie einen Namen ohne /, \\, \$ und Leerzeichen" 7 70
+							elif [ ! -e "$configfile_path/$profil_name.$configfile_ext" ]; then
+								clear
+								cp "$configfile_full" "$configfile_path/$profil_name.$configfile_ext"
+								configfile_full="$configfile_path/$profil_name.$configfile_ext"
+								weiter_cp=false
+								$command_dialog --title "$title" --msgbox "Das Profil wurde erfolgreich kopiert.\nDrücken Sie auf OK, um ins Hauptmenü zurückzugelangen" 10 60
+							else
+								$command_dialog --title "$title" --msgbox "Ein Profil mit diesem Namen existiert bereits!\nBitte wählen Sie einen neuen Namen für das Profil" 10 60
+							fi
+					else
+						weiter_cp=false
+					fi
+				done
+				;;
+			*)
+				let profile_index--
+				counter=0
+				while [ $counter -lt "${#profiles_arr[*]}" ]; do
+					if [ $counter -eq $profile_index ]; then
+						configfile_full="$configfile_path/${profiles_arr[$counter]}.$configfile_ext"
+						. "$configfile_full"
+					fi
+					let counter++
+				done
+				;;
+		esac
 	fi
 }
 
@@ -251,7 +658,7 @@ function cp_def_cfg {
 		;;
 	*)
 		echo "Dann halt nicht..."
-		exit 2
+		configfile_full="$configfile_main"
 		;;
 	esac
 }
@@ -387,7 +794,17 @@ function show_help {
 	echo -e "-r [PROFIL]\t--reset [PROFIL]\tErsetzt das übergebene oder das Hauptprofil mit einem neuen Blankoprofil"
 	echo -e "-u\t\t--update\t\tSucht beim Starten nach einer neuen Version des Skripts"
 	echo -e "-ud\t\t--update-only-download\tLädt nur die aktuelle Version des Skripts herunter, ohne das Skript selbst zu updaten"
-	echo -e "-k\t\t--knock\t\tNur anklopfen"
+	echo -e "-k\t\t--knock\t\t\tNur anklopfen"
+	echo -e "-1\t\t--ssh\t\t\tDirekt per SSH verbinden"
+	echo -e "-2\t\t--scp\t\t\tDirekt Dateien per SCP hochladen"
+	echo -e "-3\t\t--sftp\t\t\tDirekt per SFTP verbinden"
+	echo -e "-4\t\t--sshfs\t\t\tDirekt SSHFS einbinden"
+	echo -e "-5\t\t--tunnel\t\tTunneldialog aufrufen"
+	echo -e "-6\t\t--keygen\t\tSchlüsselgenerator aufrufen"
+	echo -e "-7\t\t--custom\t\tMit eigener SSH-Konfiguration verbinden"
+	echo -e "-8\t\t--editconfigs\t\tKonfigurationsdatei bearbeiten"
+	echo -e "-9\t\t--editprofiles\t\tProfileditor aufrufen"
+	echo -e "-10\t\t--unison\t\tUnison-Synchronisation"
 	echo -e "-v\t\t--version\t\tZeigt die Versionsnummer und eine Kurzinfo an"
 }
 
@@ -399,6 +816,7 @@ function change_profile {
 			echo "Ein neues Profil wird erstellt."
 			cp_def_cfg
 		fi
+		. "$configfile_full"
 	fi
 }
 
@@ -759,6 +1177,18 @@ function enable_legacy_name {
 	fi
 }
 
+function search_array {
+	index=0
+	while [ "$index" -lt "${#searchArray[@]}" ]; do
+		if [ "${searchArray[$index]}" = "$1" ]; then
+			echo $index
+			return
+		fi
+		let "index++"
+	done
+	echo ""
+}
+
 #################
 # HAUPTPROGRAMM #
 #################
@@ -796,88 +1226,148 @@ if [ -t 0 ]; then
 		cp_def_cfg
 	fi
 
+	# Konfigurations-Ordner erstellen, falls nicht schon existent
+	mkdir -p "$configfile_path"
+
+	# Konfigurationsdatei einbinden
+	. "$configfile_full"
 
 	# Parameter überprüfen, falls Dateien, per SCP hochladen
 	if [ $# -gt 0 ]; then
-		case $1 in
-			"-p"|"--profil"|"--profile")
-				if [ ! -z "$2" ]; then
-					change_profile "$2"
-					upload_files $#
-				else
-					list_profiles
-				fi
-				;;
-			"-a"|"--alias")
-				if [ ! -z "$2" ] && [ ! -z "$3" ]; then
-					create_profile_alias "$2" "$3"
-				elif [ ! -z "$2" ]; then
-					create_profile_alias "$configfile_main_name" "$2"
-				else
+		for i in "$@"; do
+			case $i in
+				"-p"|"--profil"|"--profile")
+					searchArray=( "$@" )
+					parm_pos=$(search_array $i)
+					profile_pos=$(($parm_pos+2))
+					if [ ! -z "${!profile_pos}" ]; then
+						change_profile "${!profile_pos}"
+						uploadFiles $#
+					else
+						list_profiles
+					fi
+					;;
+				"-a"|"--alias")
+					searchArray=( "$@" )
+					parm_pos=$(search_array $i)
+					src_pos=$(($parm_pos+2))
+					dst_pos=$(($parm_pos+3))
+					if [ ! -z "${!src_pos}" ] && [ ! -z "${!dst_pos}" ]; then
+						create_profile_alias "${!src_pos}" "${!dst_pos}"
+					elif [ ! -z "${!src_pos}" ]; then
+						create_profile_alias "$configfile_main_name" "${!src_pos}"
+					else
+						show_help
+						exit 1
+					fi
+					exit 0
+					;;
+				"-c"|"--copy")
+					searchArray=( "$@" )
+					parm_pos=$(search_array $i)
+					src_pos=$(($parm_pos+2))
+					dst_pos=$(($parm_pos+3))
+					if [ ! -z "${!src_pos}" ] && [ ! -z "${!dst_pos}" ]; then
+						copy_profile "${!src_pos}" "${!dst_pos}"
+					elif [ ! -z "${!src_pos}" ]; then
+						copy_profile "$configfile_main_name" "${!src_pos}"
+					else
+						show_help
+						exit 1
+					fi
+					exit 0
+					;;
+				"-m"|"--move")
+					searchArray=( "$@" )
+					parm_pos=$(search_array $i)
+					src_pos=$(($parm_pos+2))
+					dst_pos=$(($parm_pos+3))
+					if [ ! -z "${!src_pos}" ] && [ ! -z "${!dst_pos}" ]; then
+						move_profile "${!src_pos}" "${!dst_pos}"
+					else
+						show_help
+						exit 1
+					fi
+					exit 0
+					;;
+				"-d"|"--delete")
+					searchArray=( "$@" )
+					parm_pos=$(search_array $i)
+					profile_pos=$(($parm_pos+2))
+					if [ ! -z "${!profile_pos}" ]; then
+						delete_profile "${!profile_pos}"
+					fi
+					exit 0
+					;;
+				"-r"|"--reset")
+					searchArray=( "$@" )
+					parm_pos=$(search_array $i)
+					profile_pos=$(($parm_pos+2))
+					if [ ! -z "${!profile_pos}" ]; then
+						reset_profile "${!profile_pos}"
+					else
+						reset_profile "$configfile_main_name"
+					fi
+					exit 0
+					;;
+				"-k"|"--knock")
+					if [[ $knockd_enable ]]; then
+						echo "Klopfe an..."
+						knockknock
+						exit 0
+					else
+						echo "Für das Profil ist Port-Knocking nicht aktiviert. Tue nichts."
+						exit 0
+					fi
+					;;
+				"-v"|"--version")
+					show_version_info
+					exit 0
+					;;
+				"-h"|"--help")
 					show_help
-					exit 1
-				fi
-				exit 0
-				;;
-			"-c"|"--copy")
-				if [ ! -z "$2" ] && [ ! -z "$3" ]; then
-					copy_profile "$2" "$3"
-				elif [ ! -z "$2" ]; then
-					copy_profile "$configfile_main_name" "$2"
-				else
-					show_help
-					exit 1
-				fi
-				exit 0
-				;;
-			"-m"|"--move")
-				if [ ! -z "$2" ] && [ ! -z "$3" ]; then
-					move_profile "$2" "$3"
-				else
-					show_help
-					exit 1
-				fi
-				exit 0
-				;;
-			"-d"|"--delete")
-				if [ ! -z "$2" ]; then
-					delete_profile "$2"
-				fi
-				exit 0
-				;;
-			"-r"|"--reset")
-				if [ ! -z "$2" ]; then
-					reset_profile "$2"
-				else
-					reset_profile "$configfile_main_name"
-				fi
-				exit 0
-				;;
-			"-k"|"--knock")
-				justknock=true
-				;;
-			"-v"|"--version")
-				show_version_info
-				exit 0
-				;;
-			"-h"|"--help")
-				show_help
-				exit 0
-				;;
-			"-u"|"--update")
-				search_for_updates=true
-				;;
-			"-ud"|"--update-download")
-				search_for_updates=true
-				update_only_download=true
-				;;
-			*)
-				upload_files $#
-				echo "Ungültige Option: $1"
-				show_help
-				exit 1
-				;;
-		esac
+					exit 0
+					;;
+				"-u"|"--update")
+					search_for_updates=true
+					;;
+				"-ud"|"--update-download")
+					search_for_updates=true
+					update_only_download=true
+					;;
+				"-1"|"--ssh")
+					action="ssh_connect"
+					;;
+				"-2"|"--scp")
+					action="scp_connect"
+					;;
+				"-3"|"--sftp")
+					action="sftp_connect"
+					;;
+				"-4"|"--shfs")
+					action="sshfs_connect"
+					;;
+				"-5"|"--tunnel")
+					action="tunnel_connect"
+					;;
+				"-6"|"--keygen")
+					action="ssh_keygen"
+					;;
+				"-7"|"--custom")
+					action="ssh_custom_connect"
+					;;
+				"-8"|"--editconfig")
+					action="edit_config_file"
+					;;
+				"-9"|"--editprofiles")
+					action="edit_profiles"
+					;;
+				"-10"|"--unison")
+					clear
+					synchronise
+					;;
+			esac
+		done
 	fi
 
 	if [[ $search_for_updates ]]; then
@@ -885,21 +1375,9 @@ if [ -t 0 ]; then
 		check_for_updates
 	fi
 
-	# Konfigurations-Ordner erstellen, falls nicht schon existent
-	mkdir -p "$configfile_path"
-
-	# Konfigurationsdatei einbinden
-	. "$configfile_full"
-
-	if [[ $justknock ]]; then
-		if [[ $knockd_enable ]]; then
-			echo "Klopfe an..."
-			knockknock
-			exit 0
-		else
-			echo "Für das Profil ist Port-Knocking nicht aktiviert. Tue nichts."
-			exit 0
-		fi
+	if [ ! -z "$action" ]; then
+		$action
+		exit 0
 	fi
 
 	clear
@@ -938,412 +1416,47 @@ if [ -t 0 ]; then
 		case "$(cat $erg)" in
 			1)
 				# SSH
-				clear
-				ovpn_connect
-				knockknock
-				$command_ssh $sshparms $user@$server -p $sshport
-				# read -n 1 any
-				ovpn_disconnect
+				ssh_connect
 				;;
 			2)
 				# Dateien via SCP übertragen
-				weiter_scp=true
-				while $weiter_scp; do
-					curworkdir=$(pwd)
-					$command_dialog --title "$title" --fselect $(echo "$curworkdir/") 10 70 2> $erg
-					file_scp=$(cat $erg)
-					if [ -z "$file_scp" ]; then
-						weiter_scp=false
-					elif [ ! -e "$file_scp" ]; then
-						$command_dialog --title "$title" --msgbox "Die Datei existiert nicht." 0 0
-					elif [ -d "$file_scp" ]; then
-						$command_dialog --title "$title" --msgbox "Sie können nur Dateien, keine Ordner versenden!" 5 65
-					else
-						$command_dialog --title "$title" --no-cancel --inputbox "Geben Sie den Zielort der Datei auf dem Server an.\nLeer lassen, um in den Benutzerordner hochzuladen" 10 70 2> $erg
-						destpath="$(cat $erg)"
-						clear
-						firstbyte=$(echo $file_scp | cut -b 1)
-						if [ "$firstbyte" == "/" ]; then
-							filepath=$file_scp
-						else
-							curworkdir=$(pwd)
-							filepath="$curworkdir/$file_scp"
-						fi
-						ovpn_connect
-						knockknock
-						$command_scp -P $sshport "$filepath" $user@$server:"$destpath"
-						weiter_scp=false
-						echo "Drücken Sie eine beliebige Taste, um in das Hauptmenü zurückzukehren"
-						read -n 1 any
-						ovpn_disconnect
-					fi
-				done
+				scp_connect
 				;;
 			3)
 				# SFTP
-				if [[ ! "$(uname)" == *CYGWIN* ]]; then
-					clear
-					ovpn_connect
-					knockknock
-					$filemanager "sftp://$user@$server:$sshport"
-					ovpn_disconnect
-				else
-					$command_dialog --title "$title" --msgbox "Unter Windows ist dies so direkt nicht möglich.\nWir empfehlen daher, \"WinSCP\" dafür zu installieren." 7 65
-				fi
+				sftp_connect
 				;;
 			4)
 				# SSHFS
-				if [[ ! "$(uname)" == *CYGWIN* ]]; then
-					clear
-					break=false
-					$command_dialog --title "$title" --inputbox "Geben Sie den einzubindenden Ordner an" 10 60 "/" 2> $erg
-					sshfsdir=$(cat $erg)
-					if [ ! -z "$sshfsdir" ]; then
-						$command_dialog --title "$title" --inputbox "Geben Sie den anzumeldenden Benutzer an" 10 60 "$user" 2> $erg
-						sshfsuser=$(cat $erg)
-						if [ ! -z "$sshfsuser" ]; then
-							doAgain=true
-							while $doAgain; do
-								$command_dialog --title "$title" --no-cancel --inputbox "Geben Sie den Mountpunkt an.\nDer Ordner muss für Ihren Benutzer beschreibbar sein!" 10 60 "$HOME/sshfs_auf_$server" 2> $erg
-								sshfsmnt=$(cat $erg)
-								if [ ! -z "$sshfsmnt" ]; then
-									if [ ! -e "$sshfsmnt" ]; then
-										$command_dialog --title "$title" --yesno "Der Mountpunkt existiert nicht.\nSoll er erstellt werden?" 7 60
-										answer=$?
-										case $answer in
-											0)
-												if [ -w "$(dirname $sshfsmnt)" ]; then
-													mkdir -p $sshfsmnt
-												else
-													echo "Sie benötigen erhöhte Schreibrechte, um den Ordner anlegen zu können."
-													if [[ "$(which sudo)" ]]; then
-														echo "Bitte geben Sie ihr Benutzerpasswort ein, um zu bestätigen."
-														sudo mkdir -p "$sshfsmnt"
-														sudo chown $USER@$GROUPS "$sshfsmnt"
-													else
-														echo "Bitte geben Sie ihr Rootpasswort ein, um zu bestätigen."
-														su -c "mkdir -p \"$sshfsmnt\""
-														su -c "chown $USER@$GROUPS \"$sshfsmnt\""
-													fi
-												fi
-												;;
-											1|255)
-												$command_dialog --title "$title" --msgbox "Der Mountpunkt wurde nicht erstellt" 5 60
-												break=true
-												doAgain=false
-												;;
-										esac
-									fi
-									clear
-									if ! $break; then
-										if [ -w "$sshfsmnt" ]; then
-											ovpn_connect
-											knockknock
-											echo "Baue Verbindung via SSHFS auf. Um zu beenden, drücken Sie CTRL-C"
-											$command_sshfs "$sshfsuser@$server:$sshfsdir" "$sshfsmnt" -C -p $sshport -f
-											ovpn_disconnect
-											doAgain=false
-										else
-											$command_dialog --title "$title" --msgbox "Der Mountpunkt ist NUR mit root-Rechten schreibbar!\nGeben Sie einen Mountpunkt an, auf den Sie auch schreiben dürfen" 7 65
-										fi
-									fi
-								else
-									doAgain=false
-								fi
-							done
-							if [ ! -z "$sshfsmnt" ] && ! $break; then
-								clear
-								$command_dialog --title "$title" --yesno "Soll der Mountpunkt gelöscht werden?" 5 60
-								answer=$?
-								case $answer in
-									0)
-										if [ -w "$sshfsmnt" ]; then
-											rmdir "$sshfsmnt"
-											$command_dialog --title "$title" --msgbox "Der Mountpunkt wurde erfolgreich gelöscht" 5 60
-										else
-											$command_dialog --title "$title" --msgbox "Der Mountpunkt darf nicht gelöscht werden!" 5 60
-											exit 1
-										fi
-										;;
-									1|255)
-										$command_dialog --title "$title" --msgbox "Der Mountpunkt wurde nicht gelöscht" 5 60
-										;;
-								esac
-							fi
-						fi
-					fi
-				else
-					$command_dialog --title "$title" --msgbox "Unter Windows ist dies so direkt nicht möglich.\nWir empfehlen daher, \"Swish\" dafür zu installieren." 7 65
-				fi
+				sshfs_connect
 				;;
 			5)
 				# SSH Tunnel
-				clear
-				break=false
-				$command_dialog --title "$title" --inputbox "Geben Sie die Quelladresse an" 0 0 "localhost" 2> $erg
-				if [ -s "$erg" ]; then
-					sourceaddr=$(cat $erg)
-					$command_dialog --title "$title" --menu "Wählen Sie den Quellport aus" 0 0 0 \
-						20 "FTP (Datenübertragung)" \
-						21 "FTP (Anmeldung und Kontrolle)" \
-						22 "SSH" \
-						23 "Telnet" \
-						25 "SMTP" \
-						53 "DNS" \
-						80 "HTTP" \
-						110 "POP3" \
-						113 "IRC Ident" \
-						115 "SFTP" \
-						118 "SQL" \
-						143 "IMAP" \
-						194 "IRC" \
-						220 "IMAP v3" \
-						443 "HTTPS" \
-						445 "Samba" \
-						531 "AOL Instant Messenger, IRC" \
-						587 "SMTP (alternativ)" \
-						631 "IPP" \
-						989 "FTPS (Datenübertragung)" \
-						990 "FTPS (Anmeldung und Kontrolle)" \
-						992 "Telnet via TLS/SSL" \
-						993 "IMAPS" \
-						995 "POP3S" \
-						1080 "SOCKS proxy" \
-						1194 "OpenVPN" \
-						2401 "CVS" \
-						3074 "Xbox LIVE, Games for Windows-Live" \
-						3306 "MySQL" \
-						3389 "RDP" \
-						3724 "World of Warcraft" \
-						5190 "ICQ und AIM" \
-						5500 "VNC (alternativ)" \
-						5800 "VNC über HTTP" \
-						5900 "VNC" \
-						6112 "Battle.net" \
-						8008 "HTTP Alternative" \
-						8080 "HTTP Alternative" \
-						8767 "TeamSpeak 2" \
-						9001 "Tor" \
-						9030 "Tor (alt.)" \
-						9050 "Tor (alt.)" \
-						9051 "Tor (alt.)" \
-						9418 "git" \
-						9987 "TeamSpeak 3" \
-						10000 "Webmin" \
-						11371 "OpenPGP Key Server" \
-						20000 "Usermin" \
-						25565 "MySQL, Minecraft" \
-						X "Port manuell eingeben" \
-						A "Alle Quellports" \
-						0 "Programm beenden" 2> $erg
-					sourceport=$(cat $erg)
-					case "$sourceport" in
-						X)
-							$command_dialog --title "$title" --inputbox "Geben Sie den Quellport an" 0 0 2> $erg
-							if [ -s "$erg" ]; then
-								sourceport=$(cat $erg)
-								$command_dialog --title "$title" --inputbox "Geben Sie den Zielport an" 0 0 2> $erg
-								if [ -s "$erg" ]; then
-									destport=$(cat $erg)
-								else
-									break=true
-								fi
-							else
-								break=true
-							fi
-							;;
-						A)
-							$command_dialog --title "$title" --inputbox "Geben Sie den Zielport an" 0 0 2> $erg
-							if [ -s "$erg" ]; then
-								destport=$(cat $erg)
-								ovpn_connect
-								knockknock
-								echo "Geben Sie 'localhost:$destport' als SOCKS-Proxy in Ihrem Browser ein."
-								echo "Um zu beenden, drücken Sie CTRL-C"
-								$command_ssh -C -N -L -D $destport $user@$server -p $sshport
-								ovpn_disconnect
-							fi
-							break=true
-							;;
-						0|"")
-							echo "Dann halt nicht..."
-							break=true
-							;;
-						*)
-							$command_dialog --title "$title" --inputbox "Geben Sie den Zielport an" 0 0 2> $erg
-							if [ -s "$erg" ]; then
-								destport=$(cat $erg)
-							else
-								break=true
-							fi
-							;;
-					esac
-					if ! $break; then
-						ovpn_connect
-						knockknock
-						echo "Lassen Sie die Verbindung zum Server so lange bestehen, wie der Tunnel aktiv sein soll."
-						echo "Um zu beenden, drücken Sie CTRL-C"
-						if [ $destport -lt 1024 ]; then
-							echo "Sie haben einen Port kleiner als 1024 gewählt. Das erfordert root-Rechte."
-							if [[ "$(which sudo)" ]]; then
-								sudo $command_ssh -C -N -L localhost:$destport:$sourceaddr:$sourceport $user@$server -p $sshport
-							else
-								su -c "$command_ssh -C -N -L localhost:$destport:$sourceaddr:$sourceport $user@$server -p $sshport"
-							fi
-						else
-							$command_ssh -C -N -L localhost:$destport:$sourceaddr:$sourceport $user@$server -p $sshport
-						fi
-						ovpn_disconnect
-					fi
-				fi
+				tunnel_connect
 				;;
 			6)
-				weiter_kg=true
-				while $weiter_kg; do
-					clear
-					$command_dialog --title "$title" --no-cancel --inputbox "Geben Sie die Parameter für den Schlüsselgenerator an (optional)\nLeer lassen, wenn Sie damit nicht vertraut sind\nGeben Sie 'man' ein, wenn Sie die Man-Page sehen\noder 'exit', wenn Sie zurück ins Hauptmenü möchten" 10 70 2> $erg
-					keygenparms=$(cat $erg)
-					clear
-					if [ "$keygenparms" = "man" ]; then
-						man ssh-keygen
-					elif [ "$keygenparms" = "exit" ]; then
-						weiter_kg=false
-					else
-						$command_ssh_keygen $keygenparms
-						weiter_kg=false
-						echo "Beliebige Taste drücken, um zum Hauptmenü zurückzukehren"
-						read -n 1 any
-					fi
-				done
+				# SSH Schlüsselgenerator
+				ssh_keygen
 				;;
 			7)
-				clear
-				$command_dialog --title "$title" --inputbox "Geben Sie die Serveradresse an" 0 0 2> $erg
-				if [ -s "$erg" ]; then
-					tmpserver=$(cat $erg)
-					$command_dialog --title "$title" --inputbox "Geben Sie den Benutzernamen an" 0 0 2> $erg
-					if [ -s "$erg" ]; then
-						tmpuser=$(cat $erg)
-						$command_dialog --title "$title" --no-cancel --inputbox "Geben Sie die SSH-Parameter an" 0 0 "-X -C" 2> $erg
-						tmpparms=$(cat $erg)
-						$command_ssh $tmpparms $tmpuser@$tmpserver -p $sshport
-					fi
-				fi
+				# Eigene SSH Konfiguration
+				ssh_custom_connect
 				;;
 			8)
-				clear
-				# Die Konfiguration bearbeiten
-				if [ ! -e "$(which $editor)" ]; then editor="/usr/bin/nano"; fi
-				if [ ! -e "$(which $editor)" ]; then editor="/usr/bin/vi"; fi
-				"$editor" "$configfile_full"
-				# Konfigurationsdatei neu einlesen
-				. "$configfile_full"
+				# Konfigurationsdatei bearbeiten
+				edit_config_file
 				;;
 			9)
-				profiles_arr=($(ls $configfile_path/*.cfg | grep -v $configfile_main | sed -e 's/'$configfile_path_sed'\///' | sed -e 's/.'$configfile_ext'//'))
-				profiles_str="0 Hauptprofil"
-				counter=1
-				for profile in "${profiles_arr[@]}"; do
-					profiles_str="$profiles_str $counter $profile"
-					let counter++
-				done
-				profiles_str="$profiles_str n Neues_Profil_erstellen"
-				profiles_str="$profiles_str c Aktuelles_Profil_kopieren"
-				if [ ! "$configfile_full" = "$configfile_main" ]; then
-					profiles_str="$profiles_str d Aktuelles_Profil_löschen"
-				fi
-				$command_dialog --title "$title" --menu "Profilauswahl\nAktuelles Profil: $(echo $configfile_full | sed -e 's/'$configfile_path_sed'\///' | sed -e 's/.'$configfile_ext'//' | sed -e 's/sshmultitool/Hauptprofil/')" 0 60 0 $profiles_str 2> $erg
-				if [ -s "$erg" ]; then
-					clear
-					profile_index="$(cat $erg)"
-					case "$(cat $erg)" in
-						0)
-							configfile_full="$configfile_main"
-							. "$configfile_full"
-							;;
-						"n")
-							weiter_np=true
-							skip=false
-							while $weiter_np; do
-								$command_dialog --title "$title" --inputbox "Geben Sie den Namen des neuen Profils ein\nVerbotene Zeichen sind: \$, /, \\ und das Leerzeichen" 10 60 "profilNeu" 2> $erg
-								profil_name=$(cat $erg)
-								if [ ! -z "$profil_name" ]; then
-									if [ ! -z "$(echo $profil_name | grep [' '\\/\$])" ]; then
-										$command_dialog --title "$title" --msgbox "Der Name beinhaltet verbotene Zeichen.\nBitte wählen Sie einen Namen ohne /, \\, \$ und Leerzeichen" 7 70
-									elif [ ! -e "$configfile_path/$profil_name.$configfile_ext" ]; then
-										clear
-										configfile_full="$configfile_path/$profil_name.$configfile_ext"
-										cp_def_cfg
-										weiter_np=false
-										$command_dialog --title "$title" --msgbox "Das Profil wurde erfolgreich erzeugt." 5 60
-									else
-										$command_dialog --title "$title" --msgbox "Ein Profil mit diesem Namen existiert bereits!\nBitte wählen Sie einen neuen Namen für das Profil" 7 60
-									fi
-								else
-									weiter_np=false
-								fi
-							done
-							;;
-						"d")
-							if [ ! "$configfile_full" = "$configfile_main" ]; then
-								clear
-								$command_dialog --title "$title" --yesno "Wollen Sie das aktuelle Profil wirklich löschen?" 5 60
-								answer=$?
-								case $answer in
-									0)
-										rm "$configfile_full"
-										configfile_full="$configfile_main"
-										$command_dialog --title "$title" --msgbox "Das Profil wurde erfolgreich gelöscht" 5 60
-										;;
-									1|255)
-										$command_dialog --title "$title" --msgbox "Das Profil wurde nicht gelöscht" 5 60
-										;;
-								esac
-							else
-								$command_dialog --title "$title" --msgbox "Das Hauptprofil kann nicht gelöscht werden" 5 60
-							fi
-							;;
-						"c")
-							weiter_cp=true
-							while $weiter_cp; do
-								$command_dialog --title "$title" --inputbox "Geben Sie den Namen des neuen Profils ein\nVerbotene Zeichen sind: \$, /, \\ und das Leerzeichen" 10 60 "profilNeu" 2> $erg
-								profil_name="$(cat $erg)"
-								if [ ! -z "$profil_name" ]; then
-										if [ ! -z "$(echo $profil_name | grep [' '\\/\$])" ]; then
-											$command_dialog --title "$title" --msgbox "Der Name beinhaltet verbotene Zeichen.\nBitte wählen Sie einen Namen ohne /, \\, \$ und Leerzeichen" 7 70
-										elif [ ! -e "$configfile_path/$profil_name.$configfile_ext" ]; then
-											clear
-											cp "$configfile_full" "$configfile_path/$profil_name.$configfile_ext"
-											configfile_full="$configfile_path/$profil_name.$configfile_ext"
-											weiter_cp=false
-											$command_dialog --title "$title" --msgbox "Das Profil wurde erfolgreich kopiert.\nDrücken Sie auf OK, um ins Hauptmenü zurückzugelangen" 10 60
-										else
-											$command_dialog --title "$title" --msgbox "Ein Profil mit diesem Namen existiert bereits!\nBitte wählen Sie einen neuen Namen für das Profil" 10 60
-										fi
-								else
-									weiter_cp=false
-								fi
-							done
-							;;
-						*)
-							let profile_index--
-							counter=0
-							while [ $counter -lt "${#profiles_arr[*]}" ]; do
-								if [ $counter -eq $profile_index ]; then
-									configfile_full="$configfile_path/${profiles_arr[$counter]}.$configfile_ext"
-									. "$configfile_full"
-								fi
-								let counter++
-							done
-							;;
-					esac
-				fi
+				# Profilmanagement
+				edit_profiles
 				;;
 			10)
+				# Unison Synchronisation
 				clear
 				synchronise
 				;;
 			"?")
+				# Version anzeigen
 				show_version_info | $command_dialog --progressbox "Über dieses Programm (Zurück: Beliebige Taste drücken)" 13 88
 				read -n 1 any
 				;;
