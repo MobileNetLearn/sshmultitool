@@ -24,6 +24,9 @@ sync_enable=false
 sync_params=""
 sync_profil=""
 sync_wait_afterwards=0
+## Gelegentlich ist es wichtig, die passende Unison-Version zu verwenden.
+## In diesem Fall das Kommentar-Zeichen entfernen und den passenden Befehl/Pfad einsetzen.
+#command_unison=""
 
 ## OpenVPN Einstellungen
 ovpn_enable=false
