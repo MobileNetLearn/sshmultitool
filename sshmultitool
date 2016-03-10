@@ -17,7 +17,7 @@
 
 # Name, Versionsnummer und Fenstertitel des Programms
 name="SSH Multitool"
-version="2016-01-03"
+version="2016-03-10"
 title="$name - Version $version"
 
 # Folgende Variablen nur überschreiben
@@ -408,7 +408,7 @@ function edit_config_file {
 }
 
 function edit_profiles {
-	profiles_arr=($(ls $configfile_path/*.cfg | grep -v $configfile_main | sed -e 's/'$configfile_path_sed'\///' | sed -e 's/.'$configfile_ext'//'))
+	profiles_arr=($(ls $configfile_path/*.cfg | grep -v $configfile_main | grep -v "homescripts.cfg" | sed -e 's/'$configfile_path_sed'\///' | sed -e 's/.'$configfile_ext'//'))
 	profiles_str="0 Hauptprofil"
 	counter=1
 	for profile in "${profiles_arr[@]}"; do
