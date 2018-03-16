@@ -17,7 +17,7 @@
 
 # Name, Versionsnummer und Fenstertitel des Programms
 name="SSH Multitool"
-version="2016-03-10"
+version="2018-03-16"
 title="$name - Version $version"
 
 # Folgende Variablen nur überschreiben
@@ -1193,193 +1193,193 @@ function search_array {
 # HAUPTPROGRAMM #
 #################
 
+# Gegebenenfalls aufruf über alten Programmnamen ermöglichen
+if [ check_enable_legacy ]; then
+	enable_legacy_name
+fi
+
+# Nach altem Config-Ordner checken, ggbf. verschieben
+check_for_legacy_folders
+
+# Abhängigkeiten auflösen
+clear
+check_for_dependencies
+
+# Temporäre Datei erzeugen
+erg=$(mktemp) || (echo "Fehler beim anlegen der TEMP-Datei." && exit 1)
+
+# Standardeditor einstellen, wird später von Config überschrieben
+if [ -z "$EDITOR" ]; then
+	editor="$(which nano)"
+	if [ ! -e "$editor" ]; then editor="$(which vi)"; fi
+fi
+
+# Konfigurations-Ordner erstellen, falls nicht schon existent
+mkdir -p "$configfile_path"
+
+# Konfigurationsdatei ggbf. herunterladen, falls nicht vorhanden
+if [ ! -e "$configfile_template" ]; then
+	dl_def_cfg
+fi
+
+if [ ! -e "$configfile_full" ]; then
+	clear
+	cp_def_cfg
+fi
+
+# Konfigurationsdatei einbinden
+. "$configfile_full"
+
+# Parameter überprüfen, falls Dateien, per SCP hochladen
+if [ $# -gt 0 ]; then
+	for i in "$@"; do
+		case $i in
+			"-p"|"--profil"|"--profile")
+				searchArray=( "$@" )
+				parm_pos=$(search_array $i)
+				profile_pos=$(($parm_pos+2))
+				if [ ! -z "${!profile_pos}" ]; then
+					change_profile "${!profile_pos}"
+					upload_files $#
+				else
+					list_profiles
+				fi
+				;;
+			"-a"|"--alias")
+				searchArray=( "$@" )
+				parm_pos=$(search_array $i)
+				src_pos=$(($parm_pos+2))
+				dst_pos=$(($parm_pos+3))
+				if [ ! -z "${!src_pos}" ] && [ ! -z "${!dst_pos}" ]; then
+					create_profile_alias "${!src_pos}" "${!dst_pos}"
+				elif [ ! -z "${!src_pos}" ]; then
+					create_profile_alias "$configfile_main_name" "${!src_pos}"
+				else
+					show_help
+					exit 1
+				fi
+				exit 0
+				;;
+			"-c"|"--copy")
+				searchArray=( "$@" )
+				parm_pos=$(search_array $i)
+				src_pos=$(($parm_pos+2))
+				dst_pos=$(($parm_pos+3))
+				if [ ! -z "${!src_pos}" ] && [ ! -z "${!dst_pos}" ]; then
+					copy_profile "${!src_pos}" "${!dst_pos}"
+				elif [ ! -z "${!src_pos}" ]; then
+					copy_profile "$configfile_main_name" "${!src_pos}"
+				else
+					show_help
+					exit 1
+				fi
+				exit 0
+				;;
+			"-m"|"--move")
+				searchArray=( "$@" )
+				parm_pos=$(search_array $i)
+				src_pos=$(($parm_pos+2))
+				dst_pos=$(($parm_pos+3))
+				if [ ! -z "${!src_pos}" ] && [ ! -z "${!dst_pos}" ]; then
+					move_profile "${!src_pos}" "${!dst_pos}"
+				else
+					show_help
+					exit 1
+				fi
+				exit 0
+				;;
+			"-d"|"--delete")
+				searchArray=( "$@" )
+				parm_pos=$(search_array $i)
+				profile_pos=$(($parm_pos+2))
+				if [ ! -z "${!profile_pos}" ]; then
+					delete_profile "${!profile_pos}"
+				fi
+				exit 0
+				;;
+			"-r"|"--reset")
+				searchArray=( "$@" )
+				parm_pos=$(search_array $i)
+				profile_pos=$(($parm_pos+2))
+				if [ ! -z "${!profile_pos}" ]; then
+					reset_profile "${!profile_pos}"
+				else
+					reset_profile "$configfile_main_name"
+				fi
+				exit 0
+				;;
+			"-k"|"--knock")
+				if [[ $knockd_enable ]]; then
+					echo "Klopfe an..."
+					knockknock
+					exit 0
+				else
+					echo "Für das Profil ist Port-Knocking nicht aktiviert. Tue nichts."
+					exit 0
+				fi
+				;;
+			"-v"|"--version")
+				show_version_info
+				exit 0
+				;;
+			"-h"|"--help")
+				show_help
+				exit 0
+				;;
+			"-u"|"--update")
+				search_for_updates=true
+				;;
+			"-ud"|"--update-download")
+				search_for_updates=true
+				update_only_download=true
+				;;
+			"-1"|"--ssh")
+				action="ssh_connect"
+				;;
+			"-2"|"--scp")
+				action="scp_connect"
+				;;
+			"-3"|"--sftp")
+				action="sftp_connect"
+				;;
+			"-4"|"--shfs")
+				action="sshfs_connect"
+				;;
+			"-5"|"--tunnel")
+				action="tunnel_connect"
+				;;
+			"-6"|"--keygen")
+				action="ssh_keygen"
+				;;
+			"-7"|"--custom")
+				action="ssh_custom_connect"
+				;;
+			"-8"|"--editconfig")
+				action="edit_config_file"
+				;;
+			"-9"|"--editprofiles")
+				action="edit_profiles"
+				;;
+			"-10"|"--unison")
+				clear
+				synchronise
+				;;
+		esac
+	done
+fi
+
+if [[ $search_for_updates ]]; then
+	clear
+	check_for_updates
+fi
+
+if [ ! -z "$action" ]; then
+	$action
+	exit 0
+fi
+
 # Wenn im Terminal geöffnet...
 if [ -t 0 ]; then
-	# Gegebenenfalls aufruf über alten Programmnamen ermöglichen
-	if [ check_enable_legacy ]; then
-		enable_legacy_name
-	fi
-
-	# Nach altem Config-Ordner checken, ggbf. verschieben
-	check_for_legacy_folders
-
-	# Abhängigkeiten auflösen
-	clear
-	check_for_dependencies
-
-	# Temporäre Datei erzeugen
-	erg=$(mktemp) || (echo "Fehler beim anlegen der TEMP-Datei." && exit 1)
-
-	# Standardeditor einstellen, wird später von Config überschrieben
-	if [ -z "$EDITOR" ]; then
-		editor="$(which nano)"
-		if [ ! -e "$editor" ]; then editor="$(which vi)"; fi
-	fi
-
-	# Konfigurations-Ordner erstellen, falls nicht schon existent
-	mkdir -p "$configfile_path"
-
-	# Konfigurationsdatei ggbf. herunterladen, falls nicht vorhanden
-	if [ ! -e "$configfile_template" ]; then
-		dl_def_cfg
-	fi
-
-	if [ ! -e "$configfile_full" ]; then
-		clear
-		cp_def_cfg
-	fi
-
-	# Konfigurationsdatei einbinden
-	. "$configfile_full"
-
-	# Parameter überprüfen, falls Dateien, per SCP hochladen
-	if [ $# -gt 0 ]; then
-		for i in "$@"; do
-			case $i in
-				"-p"|"--profil"|"--profile")
-					searchArray=( "$@" )
-					parm_pos=$(search_array $i)
-					profile_pos=$(($parm_pos+2))
-					if [ ! -z "${!profile_pos}" ]; then
-						change_profile "${!profile_pos}"
-						upload_files $#
-					else
-						list_profiles
-					fi
-					;;
-				"-a"|"--alias")
-					searchArray=( "$@" )
-					parm_pos=$(search_array $i)
-					src_pos=$(($parm_pos+2))
-					dst_pos=$(($parm_pos+3))
-					if [ ! -z "${!src_pos}" ] && [ ! -z "${!dst_pos}" ]; then
-						create_profile_alias "${!src_pos}" "${!dst_pos}"
-					elif [ ! -z "${!src_pos}" ]; then
-						create_profile_alias "$configfile_main_name" "${!src_pos}"
-					else
-						show_help
-						exit 1
-					fi
-					exit 0
-					;;
-				"-c"|"--copy")
-					searchArray=( "$@" )
-					parm_pos=$(search_array $i)
-					src_pos=$(($parm_pos+2))
-					dst_pos=$(($parm_pos+3))
-					if [ ! -z "${!src_pos}" ] && [ ! -z "${!dst_pos}" ]; then
-						copy_profile "${!src_pos}" "${!dst_pos}"
-					elif [ ! -z "${!src_pos}" ]; then
-						copy_profile "$configfile_main_name" "${!src_pos}"
-					else
-						show_help
-						exit 1
-					fi
-					exit 0
-					;;
-				"-m"|"--move")
-					searchArray=( "$@" )
-					parm_pos=$(search_array $i)
-					src_pos=$(($parm_pos+2))
-					dst_pos=$(($parm_pos+3))
-					if [ ! -z "${!src_pos}" ] && [ ! -z "${!dst_pos}" ]; then
-						move_profile "${!src_pos}" "${!dst_pos}"
-					else
-						show_help
-						exit 1
-					fi
-					exit 0
-					;;
-				"-d"|"--delete")
-					searchArray=( "$@" )
-					parm_pos=$(search_array $i)
-					profile_pos=$(($parm_pos+2))
-					if [ ! -z "${!profile_pos}" ]; then
-						delete_profile "${!profile_pos}"
-					fi
-					exit 0
-					;;
-				"-r"|"--reset")
-					searchArray=( "$@" )
-					parm_pos=$(search_array $i)
-					profile_pos=$(($parm_pos+2))
-					if [ ! -z "${!profile_pos}" ]; then
-						reset_profile "${!profile_pos}"
-					else
-						reset_profile "$configfile_main_name"
-					fi
-					exit 0
-					;;
-				"-k"|"--knock")
-					if [[ $knockd_enable ]]; then
-						echo "Klopfe an..."
-						knockknock
-						exit 0
-					else
-						echo "Für das Profil ist Port-Knocking nicht aktiviert. Tue nichts."
-						exit 0
-					fi
-					;;
-				"-v"|"--version")
-					show_version_info
-					exit 0
-					;;
-				"-h"|"--help")
-					show_help
-					exit 0
-					;;
-				"-u"|"--update")
-					search_for_updates=true
-					;;
-				"-ud"|"--update-download")
-					search_for_updates=true
-					update_only_download=true
-					;;
-				"-1"|"--ssh")
-					action="ssh_connect"
-					;;
-				"-2"|"--scp")
-					action="scp_connect"
-					;;
-				"-3"|"--sftp")
-					action="sftp_connect"
-					;;
-				"-4"|"--shfs")
-					action="sshfs_connect"
-					;;
-				"-5"|"--tunnel")
-					action="tunnel_connect"
-					;;
-				"-6"|"--keygen")
-					action="ssh_keygen"
-					;;
-				"-7"|"--custom")
-					action="ssh_custom_connect"
-					;;
-				"-8"|"--editconfig")
-					action="edit_config_file"
-					;;
-				"-9"|"--editprofiles")
-					action="edit_profiles"
-					;;
-				"-10"|"--unison")
-					clear
-					synchronise
-					;;
-			esac
-		done
-	fi
-
-	if [[ $search_for_updates ]]; then
-		clear
-		check_for_updates
-	fi
-
-	if [ ! -z "$action" ]; then
-		$action
-		exit 0
-	fi
-
 	clear
 
 	# Endlosschleife
